@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>VisualizeNN</title>
+	<link rel="stylesheet" href="css/normalize.css">
+	<!-- <link rel="shortcut icon" href="img/logo.png"> -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/bootstrap-grid.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/foundation-icons.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/css/bootstrap-slider.css" />
+	<link rel="stylesheet" href="css/index.css">
+
+	<script src="js/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/bootstrap-slider.js"></script>
+</head>
+
+<body>
+	<nav id="navbar" class="d-flex navbar-inverse navbar justify-content-between navigation">
+		<div id="logo">
+		VisualizeNN | Visualization of MNIST Trained Neural Network
+		</div>
+	</nav>
+	<div id="container">
+		<div id="info">Includes parameters to adjust epochs, training proportions, number of layers</div>
+		<div id="parameterWrapper" class="">			
+				<!-- <label for="layers">Epochs:</label>
+				<input type="number" id="layerSelect" name="layers" min="1" max="5"> -->
+				<table id="parametersTable">
+					<tr>
+						<td>
+							Digits to train on: 
+							<input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="0.5" data-slider-value="14"/><br/>
+							<span id="trainDataset">Train on 140 entries</span>
+						</td>
+						<td>
+							<label for="numLayers">Number of Layers:</label>
+							<input type="number" id="numLayers" name="layers" value="1" min="1" max="3">
+							<br/>
+							(number of nodes is 100)
+							<!-- <label for="layers">Nodes per Layer:</label>
+							<input type="number" id="numNodes" name="layers" min="0" max="9"> -->
+						</td>
+						<td>
+							<button class="btn btn-primary" id="train_btn">Train!</button><br/>
+							<label style="font-size:10px">(Estimated -- ms)</label><span id="trainingEstimate"></span>			
+						</td>
+					</tr>
+				</table>
+			
+				
+		</div>
+<!-- 
+		<div id="networkWrapper" class="">
+			<div id="neuralnetwork">
+			</div>
+		</div> -->
+		<hr/>
+		
+		<div id="wrapper" class="">
+			<div id="bpImageWrapper" class="">
+				<div id="bpInputs">
+					<label for="layers">Select Digit to BackProp:</label>
+					<input type="number" id="layerSelect" name="layers" min="0" max="9">
+					<br/>
+				</div>
+				<div id="backpropImage">
+				</div>
+			</div>
+
+			<!-- <div id="networkStats" class="col-sm">	
+				Layers: 3
+				Nodes per Layer: 
+				<ul>
+					<li>Initial Layer: 784</li>
+					<li>Hidden Layer 1: 100</li>
+					<li>Hidden Layer 2: 100</li>
+					<li>Hidden Layer 2: 10</li>
+				</ul>
+			</div> -->
+			<div id="userInteractionWrapper" class="row">
+				<div id="draw" class="" style="margin-left:20px"></div>	
+				<div id="drawWrapper" class="col-sm">	
+					<button class="btn btn-info" style="vertical-align: middle" id="predictDigit">Predict Digit</button>
+					<br/>Prediction: <span id="prediction" class="drawstats">--</span>
+					<br/>Confidence: <span id="confidence" class="drawstats">--</span>
+				</div>
+
+				<div id="imageWrapper" class="col-sm">	
+					<!-- <canvas height="28" width="28" id="dest" style="width:100px;height:100px"></canvas> -->
+				</div>
+				<!-- 
+				<div id="result" class="col-sm">		
+				</div> -->
+			</div>
+		</div>
+		<div id="descriptionPopup">
+			A neural network is a linear algebra technique. Backpropagation is how the weights update themselves to meet the needs of the 
+			[insert gradient descent here]
+		</div>
+	</div> <!--container -->
+	<div id="footer_bar"></div>
+</body>
+<script>
+$(document).ready(function(){
+	//visualize nn in the browser
+	trainSet = 10000 //entries
+	initialLayer = 28*28
+
+
+	function trainValue(val) {
+		$("#trainDataset").text("Train on "+Math.round(trainSet*val,0)+" digit entries");
+	}
+
+	$('#ex1').slider();
+	$("#ex1").on("slide", function(slideEvt) {
+		trainValue(slideEvt.value/100)
+	});
+
+	trainValue(parseInt($("#ex1").attr("data-slider-value"))/100)
+
+	$("#train_btn").click(function(){
+		data = {
+			"layers": 2,
+			"training": 10000
+		}
+		$(this).text("Training...")
+
+		$.ajax({
+			"url":"/nn/train",
+			"data": data,
+			"method":"GET",
+			"success": function(){
+				$(this).text("Train!")				
+			}
+		})
+	})
+})
+</script>
+<script src="js/drawCanvas.js"></script>
+
+<script>
+    page_height = $(window).height() / 5
+    $("#footer_bar").css("margin-top", page_height+"px")
+
+</script>
+</html>

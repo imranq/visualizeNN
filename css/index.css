@@ -1,0 +1,92 @@
+body {
+	font-family: "Open Sans";
+}
+
+#container {
+	/* width: 1300px; */
+	margin: 0 auto;
+}
+
+#navbar {
+	background: black;
+    color: white;
+    /* margin-bottom: 20px; */
+}
+
+#info {
+	text-align: center;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	background: darkslategray;
+	color: white;
+}
+
+#parameterWrapper {
+	/* text-align: center; */
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+#parametersTable {
+	margin: 0 auto;
+    width: 1000px;
+}
+
+#networkWrapper {
+	background: #eee;
+	height: 300px;
+	text-align: center;
+}
+
+#bpImageWrapper {
+	margin-top: 20px;
+	text-align: center;
+	display: block;
+	margin-bottom: 20px;
+}
+
+#bpInputs {
+	float: left;
+    margin-left: 300px;
+}
+
+#backpropImage {
+	height: 100px;
+	width: 100px;
+	margin-left: 20px;
+	background: #ccc;
+	float: left;
+}
+
+#canvasSimple, #dest {
+	background: #eee;
+	width: 100px;
+	height: 100px;
+}
+
+#result {
+	height: 100px;
+	width: 100px;
+	border: solid 5px #ccc;
+	margin-left: 15px;
+}
+
+#ex1Slider .slider-selection {
+	background: #BABABA;
+}
+
+#userInteractionWrapper {
+	margin-left: 20px;
+	float: left;
+	width: 550px;
+	border-left: solid 1px #ccc;
+}
+
+#descriptionPopup {
+	float: left;
+	width: 100%;
+	padding-left: 20px;
+	padding-right: 20px;
+	margin: 0 auto;
+
+}
