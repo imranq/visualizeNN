@@ -15,6 +15,7 @@
     "express": "^4.16.4",
     "mnist": "^1.1.0",
     "numjs": "^0.16.0",
+    "requests": "^0.2.2",
     "serve-static": "^1.13.2",
     "synaptic": "^1.1.4"
   }

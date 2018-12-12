@@ -174,22 +174,20 @@ function prepareCanvas()
 		// document.getElementById('imageWrapper').appendChild(image);
 		clearCanvas_simple(); 
 		scaledImgData = destCtx.getImageData(0,0,downscaleDim, downscaleDim).data
-		nnData = []
-		for (var i = 0; i < downscaleDim; i++) {
-			nnData.push([])
-			for (var j = 0; j < downscaleDim; j++) {
-				nnData[i].push()
-			}			
+		nnData = [] //28*28 sized array
+		
+		for (i=0; i<28*28; i++) {
+			nnData[i] = scaledImgData[i*4] > 200 ? 0.99 : 0
 		}
-
+		console.log("nnData: "+JSON.stringify(nnData))
 
 		$.ajax({
 			"url":"/nn/forward",
-			"method":"get",
-			"data": nnData,
+			"method":"post",
+			"data": {"img": nnData},
 			"success": function(res) {
 				$("#prediction").text(res.prediction)
-				$("#confidence").text(res.confidence)
+				$("#confidence").text(res.confidence*100+"%")
 			}
 		})
 	});

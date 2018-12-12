@@ -5,31 +5,24 @@ var port = process.env.PORT || 3000;
 const app = express();
 const mnist = require('mnist'); 
 const synaptic = require('synaptic');
-
-const set = mnist.set(700, 20);
-const trainingSet = set.training;
-const testSet = set.test;
-const Layer = synaptic.Layer;
-const Network = synaptic.Network;
-const Trainer = synaptic.Trainer;
-
-var layers = 2
-
-const inputLayer = new Layer(28*28);
-const hiddenLayer = new Layer(100);
-const outputLayer = new Layer(10);
-
-inputLayer.project(hiddenLayer);
-hiddenLayer.project(outputLayer);
-
-const myNetwork = new Network({
-    input: inputLayer,
-    hidden: [hiddenLayer],
-    output: outputLayer
-});
-
-
+const NeuralNetwork = require('./nn/NeuralNetwork.js');
 var server = http.Server(app);
+const bodyParser = require("body-parser");
+
+/** bodyParser.urlencoded(options)
+ * Parses the text as URL encoded data (which is how browsers tend to send form data from regular forms set to POST)
+ * and exposes the resulting object (containing the keys and values) on req.body
+ */
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+
+/**bodyParser.json(options)
+ * Parses the text as JSON and exposes the resulting object on req.body.
+ */
+app.use(bodyParser.json());
+
+
 
 app.use(express.static(__dirname));
 app.set(__dirname)
@@ -37,38 +30,59 @@ app.set("views", path.resolve(__dirname, "views"));
 app.set("view engine", "ejs");
 // app.use(logger("dev"));
 // app.use(bodyParser.urlencoded({ extended: false }));
+nn = new NeuralNetwork(28*28, 100, 10, 0.1)
+
 
 app.get("/", function(req, res){
 	res.render("index")
 })
 
-app.get("/nn/forward", function(req, res){
-	//get image values
-
-
+app.post("/nn/forward", function(req, res){
+	//get image values, expecting 28x28 monochrome array
+    // console.log(req.body)
+    
+    results = JSON.stringify(nn.query(req.body.img)).slice(2, -2);
+    console.log(results)
+    results = JSON.parse(results)
+    confidence = -1
+    prediction = 0
+    counter = 0
+    results.forEach(function(r){
+        if (r > confidence) {
+            confidence = r
+            prediction = counter
+        }
+        counter += 1
+    })
+    
+    // results.forEach((r,i) => {
+    //     if (r == confidence) {
+    //         prediction = i
+    //     }
+    // })
+    res.json({ "confidence": confidence, "prediction": prediction })
 })
-
 
 app.get("/nn/train", function(req, res){
     //get image values
-    const trainer = new Trainer(myNetwork);
-    trainer.train(trainingSet, {
-        rate: .2,
-        iterations: 1,
-        error: .1,
-        shuffle: true,
-        log: 1,
-        cost: Trainer.cost.CROSS_ENTROPY
+    var set = mnist.set(500, 100);
+    console.log("Training now");
+
+    set.training.slice(1,20).   forEach((entry) => {
+        nn.train(entry.input,entry.output)
     });
 
-    res.json({"result": "processing"})
+    res.json({"result": "processed"});
 });
-
-
 
 app.get("/nn/backward", function(req, res){
 	//get number, layer, and node
 	//return image data 28x28
+    // nn = new NeuralNetwork(28*28, 100, 10, 0.1);
+})
+
+app.get("/nn/test", function(req, res) {
+    res.json({ "raw": mnist[Math.round(Math.random()*9)].get(Math.round(Math.random()*100)) })
 })
 
 //on start we train a 1-layer NN with the MNIST dataset

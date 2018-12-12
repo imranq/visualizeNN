@@ -48,7 +48,7 @@
 						</td>
 						<td>
 							<button class="btn btn-primary" id="train_btn">Train!</button><br/>
-							<label style="font-size:10px">(Estimated -- ms)</label><span id="trainingEstimate"></span>			
+							<label style="font-size:10px">(Estimated <span id="trainingEstimate">--</span> ms)</label>
 						</td>
 					</tr>
 				</table>
@@ -87,7 +87,7 @@
 				<div id="draw" class="" style="margin-left:20px"></div>	
 				<div id="drawWrapper" class="col-sm">	
 					<button class="btn btn-info" style="vertical-align: middle" id="predictDigit">Predict Digit</button>
-					<br/>Prediction: <span id="prediction" class="drawstats">--</span>
+				<br/>Prediction: <span id="prediction" class="drawstats">--</span>
 					<br/>Confidence: <span id="confidence" class="drawstats">--</span>
 				</div>
 
@@ -102,6 +102,8 @@
 		<div id="descriptionPopup">
 			A neural network is a linear algebra technique. Backpropagation is how the weights update themselves to meet the needs of the 
 			[insert gradient descent here]
+		</div>
+		<div id="test">
 		</div>
 	</div> <!--container -->
 	<div id="footer_bar"></div>
@@ -126,7 +128,7 @@ $(document).ready(function(){
 
 	$("#train_btn").click(function(){
 		data = {
-			"layers": 2,
+			"hiddenlayers": 1,
 			"training": 10000
 		}
 		$(this).text("Training...")
@@ -135,10 +137,48 @@ $(document).ready(function(){
 			"url":"/nn/train",
 			"data": data,
 			"method":"GET",
-			"success": function(){
-				$(this).text("Train!")				
+			"success": function(data){
+				$("#train_btn").text("Train!")				
 			}
 		})
+	})
+
+	$.ajax({
+		"url":"/nn/test",
+		"data": {},
+		"method":"GET",
+		"success": function(data){
+			console.log(data)
+			canvas_zoomed = document.createElement('canvas');
+			canvas_zoomed.setAttribute('width', 28);
+			canvas_zoomed.setAttribute('height', 28);
+			canvas_zoomed.setAttribute('id', 'dest2');
+			$(canvas_zoomed).css("background","#eee")
+			$(canvas_zoomed).css("width","100px")
+			$(canvas_zoomed).css("height","100px")
+
+			newImageData = new ImageData(28, 28)
+			newImageData.data = new Uint8ClampedArray(3136)
+			// newImageData.height = 28
+			// newImageData.width = 28
+
+
+			for (i=0; i<data.raw.length; i++) {
+				newImageData.data[i*4] = data.raw[i]*255
+				newImageData.data[i*4+1] = data.raw[i]*255
+				newImageData.data[i*4+2] = data.raw[i]*255
+				newImageData.data[i*4+3] = 255
+			}
+			console.log(newImageData)
+
+			$('#test').append(canvas_zoomed);
+			$("#dest2")[0].getContext('2d').putImageData(newImageData,0,0)
+			// newCanvas = $("<canvas>").attr("width", 100).attr("height", 100)[0]
+			// newCanvas.getContext('2d').putImageData(newImageData,0,0)
+
+
+				
+		}
 	})
 })
 </script>
