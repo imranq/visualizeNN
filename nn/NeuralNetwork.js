@@ -2,20 +2,27 @@ var nj = require("numjs");
 
 class NeuralNetwork {
   //created with one hidden layer
-  constructor(input_nodes, hidden_nodes, output_nodes, learning_rate) {
+  constructor(input_nodes, hidden_nodes_arr, output_nodes, learning_rate) {
     this.inodes = input_nodes
-    this.hnodes = hidden_nodes
+    this.hnodes = hidden_nodes_arr[0]
     this.onodes = output_nodes
     this.lr = learning_rate
     this.wih = nj.random(this.hnodes, this.inodes) //100x784
-    // console.log(this.wih)
+    // console.log(JSON.stringify(this.wih))
     this.who = nj.random(this.onodes, this.hnodes) //10x100
+    // console.log(JSON.stringify(this.who))
     console.log("Initializing network with "+output_nodes+" Output Nodes, "+input_nodes+" Input Nodes") 
     console.log("Two matrices for hidden layer connections: "+this.wih.shape+" => "+this.who.shape) 
   }
 
-  train(user_inputs,user_targets){
+  train(user_inputs, user_targets) {
+
     var inputs = nj.array(user_inputs).T
+    // inputs.reshape(28,28).forEach(function(i){
+    //   console.log(i)
+    // })
+
+
     var targets = nj.array(user_targets).T
     var hidden_inputs = nj.dot(this.wih, inputs) //connection to the hidden layer (100x784)*(784x1) = (100x1)
     // console.log("WIH: "+this.wih.shape+" Inputs: "+inputs.shape+" => Hidden Inputs: "+hidden_inputs.shape)
@@ -25,25 +32,35 @@ class NeuralNetwork {
     // console.log("WHO: "+this.who.shape+" Hidden Outputs: "+hidden_outputs.shape+" => Final Inputs: "+final_inputs.shape)
 
     var final_outputs = nj.sigmoid(final_inputs) //10x1
-    var output_errors = nj.subtract(targets,final_outputs) //10x1
-    console.log(user_targets.indexOf(1)+": Error: "+output_errors.sum())
+    console.log("Actual: "+user_targets.indexOf(1)+" Predicted: "+JSON.stringify(final_outputs))
 
+
+    var output_errors = targets.subtract(final_outputs) //10x1
     var hidden_errors = nj.dot(this.who.T, output_errors) // (100x10).(10x1) = (100x1)
     // console.log("WHO_T: "+this.who.T.shape+" Output Errors: "+output_errors.shape+" => Hidden Errors: "+hidden_errors.shape)
 
     //backprop
-    var p0a = nj.multiply(output_errors,final_outputs) // (10x1)*(10x1) = (10x1)
-    var p0b = nj.ones(final_outputs.shape).subtract(final_outputs) //(10x1)
-    var p1 = nj.multiply(p0a,p0b).reshape(10,1) //(10x1)
-    // console.log("p0a: "+p0a.shape+" p0b: "+p0b.shape+" => p1: "+p1.shape)
-    var p2 = nj.dot(p1,hidden_outputs.reshape(1,100)) // 10x1
-    console.log(JSON.stringify(p2))
-    // console.log("p1: "+p1.shape+" hidden_outputs: "+hidden_outputs.reshape(1,100).shape+" => p2: "+p2.shape)
+    var p0b = nj.multiply(output_errors, final_outputs) // (10x1)*(10x1) = (10x1)
+    var p0a = nj.ones(final_outputs.shape).subtract(final_outputs) //(10x1)
+    var p1 = nj.multiply(p0a,p0b).reshape(final_outputs.size,1) //(10x1)
+    var p2 = nj.dot(p1,hidden_outputs.reshape(1,hidden_outputs.size)) // 10x1
     var learningRateMatrix = nj.ones(p2.shape).assign(this.lr) //this.lr
-    // console.log(JSON.stringify(nj.multiply(learningRateMatrix, p2)))
     this.who = this.who.add(nj.multiply(learningRateMatrix,p2)) //10x1 * 10x1 = 10x1
-    // console.log("learningRateMatrix: "+learningRateMatrix.shape+" hidden_outputs: "+hidden_outputs.shape+" => who: "+this.who.shape)
-    // console.log(JSON.stringify(this.who)) 
+    // console.log("Inputs: "+JSON.stringify(inputs))
+    // console.log("Targets: "+JSON.stringify(targets))
+    // console.log("Hidden Inputs: "+JSON.stringify(hidden_inputs))
+    // console.log("Final Outputs: "+JSON.stringify(final_outputs))
+    // console.log("Output Errors: "+JSON.stringify(output_errors))
+    // console.log("Hidden Errors: "+JSON.stringify(hidden_errors))
+    // console.log("P0a: "+JSON.stringify(p0a))
+    // console.log("Ones: "+JSON.stringify(nj.ones(final_outputs.shape)))
+    // console.log("Final Outputs: "+JSON.stringify(final_outputs))
+    // console.log("1-Final Outputs: "+JSON.stringify(p0b))
+    // console.log("P1: "+JSON.stringify(p1))
+    // console.log("p0a: "+p0a.shape+" p0b: "+p0b.shape+" => p1: "+p1.shape)
+    // console.log(JSON.stringify(p2))
+    // console.log("p1: "+p1.shape+" hidden_outputs: "+hidden_outputs.reshape(1,100).shape+" => p2: "+p2.shape)
+    // console.log(JSON.stringify(nj.multiply(learningRateMatrix, p2)))
     var p0 = nj.ones(hidden_outputs.shape) //
     var p1 = nj.multiply(hidden_errors, nj.multiply(hidden_outputs, p0.subtract(hidden_outputs)))
     // console.log("hidden errors: "+hidden_errors.shape+" dot hidden_outputs: "+hidden_outputs.shape+" => P1: "+p1.shape)

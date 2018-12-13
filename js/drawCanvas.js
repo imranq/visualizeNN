@@ -1,18 +1,3 @@
-// Copyright 2018 Imran Qu
-// Copyright 2010 William Malone (www.williammalone.com)
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 var canvas;
 var context;
 var canvasWidth = 100;
@@ -163,7 +148,11 @@ function prepareCanvas()
 		newCanvas = $("<canvas>")
 			.attr("width", imgData.width)
 			.attr("height", imgData.height)[0]
-
+		// for (i=0; i<imgData.data.length; i++) {
+		// 	if (i%4 == 0 && imgData.data[i] == 0) {
+		// 		imgData.data[i] = 
+		// 	}
+		// }
 
 		newCanvas.getContext('2d').putImageData(imgData,0,0)
 		destCtx.scale(downscaleDim / imgData.width, downscaleDim / imgData.width)
@@ -175,11 +164,11 @@ function prepareCanvas()
 		clearCanvas_simple(); 
 		scaledImgData = destCtx.getImageData(0,0,downscaleDim, downscaleDim).data
 		nnData = [] //28*28 sized array
-		
+		// console.log(scaledImgData.length)
 		for (i=0; i<28*28; i++) {
-			nnData[i] = scaledImgData[i*4] > 200 ? 0.99 : 0
+			nnData.push(scaledImgData.slice(i*4,i*4+4))
 		}
-		console.log("nnData: "+JSON.stringify(nnData))
+		console.log("nnData: "+JSON.stringify(nnData).slice(1,-1))
 
 		$.ajax({
 			"url":"/nn/forward",
@@ -240,7 +229,7 @@ function redrawSimple()
 	clearCanvas_simple();
 	
 	var radius = 5;
-	context_simple.strokeStyle = "#df4b26";
+	context_simple.strokeStyle = "#000";
 	context_simple.lineJoin = "round";
 	context_simple.lineWidth = radius;
 			

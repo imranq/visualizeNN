@@ -34,6 +34,10 @@
 				<table id="parametersTable">
 					<tr>
 						<td>
+							<div id="test" style="">
+							</div>
+						</td>
+						<td>
 							Digits to train on: 
 							<input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="0.5" data-slider-value="14"/><br/>
 							<span id="trainDataset">Train on 140 entries</span>
@@ -63,11 +67,13 @@
 		<hr/>
 		
 		<div id="wrapper" class="">
+			
 			<div id="bpImageWrapper" class="">
 				<div id="bpInputs">
-					<label for="layers">Select Digit to BackProp:</label>
+					<label for="layers">Select Digit to Backquery:</label>
 					<input type="number" id="layerSelect" name="layers" min="0" max="9">
 					<br/>
+					<button id="btn_backquery" class="btn btn-info">Generate Backquery Image</button>
 				</div>
 				<div id="backpropImage">
 				</div>
@@ -103,8 +109,8 @@
 			A neural network is a linear algebra technique. Backpropagation is how the weights update themselves to meet the needs of the 
 			[insert gradient descent here]
 		</div>
-		<div id="test">
-		</div>
+		<canvas id="probabilities" width="400" height="200"></canvas>
+		
 	</div> <!--container -->
 	<div id="footer_bar"></div>
 </body>
@@ -143,45 +149,76 @@ $(document).ready(function(){
 		})
 	})
 
+	$("btn_backquery").click(function(){
+		$.ajax({
+			"url": "/nn/backquery",
+			"method": "post",
+			"data": {},
+			"success": function(data){
+				
+			}
+		})
+	})
+
 	$.ajax({
 		"url":"/nn/test",
 		"data": {},
 		"method":"GET",
 		"success": function(data){
-			console.log(data)
+			// console.log(data)
 			canvas_zoomed = document.createElement('canvas');
 			canvas_zoomed.setAttribute('width', 28);
 			canvas_zoomed.setAttribute('height', 28);
 			canvas_zoomed.setAttribute('id', 'dest2');
-			$(canvas_zoomed).css("background","#eee")
-			$(canvas_zoomed).css("width","100px")
-			$(canvas_zoomed).css("height","100px")
+			$(canvas_zoomed).css("background","#eee");
+			$(canvas_zoomed).css("width","100px");
+			$(canvas_zoomed).css("height","100px");
 
-			newImageData = new ImageData(28, 28)
-			newImageData.data = new Uint8ClampedArray(3136)
+			newImageData = new ImageData(28, 28);
+			newImageData.data = new Uint8ClampedArray(3136);
 			// newImageData.height = 28
 			// newImageData.width = 28
 
 
 			for (i=0; i<data.raw.length; i++) {
-				newImageData.data[i*4] = data.raw[i]*255
-				newImageData.data[i*4+1] = data.raw[i]*255
-				newImageData.data[i*4+2] = data.raw[i]*255
-				newImageData.data[i*4+3] = 255
+				newImageData.data[i*4] = data.raw[i]*255;
+				newImageData.data[i*4+1] = data.raw[i]*255;
+				newImageData.data[i*4+2] = data.raw[i]*255;
+				newImageData.data[i*4+3] = 255;
 			}
-			console.log(newImageData)
+			console.log(newImageData);
 
 			$('#test').append(canvas_zoomed);
 			$("#dest2")[0].getContext('2d').putImageData(newImageData,0,0)
 			// newCanvas = $("<canvas>").attr("width", 100).attr("height", 100)[0]
 			// newCanvas.getContext('2d').putImageData(newImageData,0,0)
-
-
-				
 		}
 	})
 })
 </script>
+<script>
+var ctx = document.getElementById("probabilities").getContext('2d');
+// var myChart = new Chart(ctx, {
+//     type: 'bar',
+//     data: {
+//         labels: [0,0,0,0,0,0,0,0,0,0,0,0,0],
+//         datasets: [{
+//             label: 'Probability of Answer',
+//             data: Array(len).fill(0)
+//         }]
+//     },
+//     options: {
+//         scales: {
+//             yAxes: [{
+//                 ticks: {
+//                     beginAtZero:true
+//                 }
+//             }]
+//         }
+//     }
+// });
+</script>
+
 <script src="js/drawCanvas.js"></script>
 
 <script>

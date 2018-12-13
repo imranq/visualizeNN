@@ -30,7 +30,7 @@ app.set("views", path.resolve(__dirname, "views"));
 app.set("view engine", "ejs");
 // app.use(logger("dev"));
 // app.use(bodyParser.urlencoded({ extended: false }));
-nn = new NeuralNetwork(28*28, 100, 10, 0.1)
+nn = new NeuralNetwork(28*28, [20], 10, 0.3)
 
 
 app.get("/", function(req, res){
@@ -60,16 +60,23 @@ app.post("/nn/forward", function(req, res){
     //         prediction = i
     //     }
     // })
-    res.json({ "confidence": confidence, "prediction": prediction })
+    res.json({ "confidence": confidence, "prediction": prediction, "probabilities": results})
 })
 
 app.get("/nn/train", function(req, res){
     //get image values
-    var set = mnist.set(500, 100);
+    var set = mnist.set(1000, 100);
     console.log("Training now");
 
-    set.training.slice(1,20).   forEach((entry) => {
-        nn.train(entry.input,entry.output)
+    set.training.forEach((entry) => {
+        output = entry.output
+        for (i=0;i<output.length;i++) {
+            if(output[i] != 1) {
+                output[i] = 0.1    
+            }
+        }
+        // console.log(entry.input)
+        nn.train(entry.input,output)
     });
 
     res.json({"result": "processed"});
