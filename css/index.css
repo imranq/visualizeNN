@@ -33,10 +33,22 @@ body {
 }
 
 #networkWrapper {
-	background: #eee;
-	height: 300px;
-	text-align: center;
+
+    background: #eee;
+    height: 300px;
+    text-align: center;
+    vertical-align: middle;
+    padding-top: 5%;
+    padding-left: 17%;
 }
+
+#mnist_image {
+	height: 100px;
+	width: 100px;
+	background: black;
+}
+
+
 
 #bpImageWrapper {
 	margin-top: 20px;

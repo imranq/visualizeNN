@@ -124,62 +124,7 @@ function prepareCanvas()
 		paint_simple = false;
 	});
 	
-	$('#predictDigit').mousedown(function(e)
-	{
-		downscaleDim = 28
-		clickX_simple = new Array();
-		clickY_simple = new Array();
-		clickDrag_simple = new Array();
-		var image = new Image();
-		image.id = "pic"
-		image.src = document.getElementById('canvasSimple').toDataURL();
-		canvas = document.getElementById('canvasSimple');
-		ctx = canvas.getContext('2d');
-		imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-		canvas_zoomed = document.createElement('canvas');
-		canvas_zoomed.setAttribute('width', downscaleDim);
-		canvas_zoomed.setAttribute('height', downscaleDim);
-		canvas_zoomed.setAttribute('id', 'dest');
-
-		$('#imageWrapper').html(canvas_zoomed);
-
-		destCtx = $("#dest")[0].getContext('2d')
-		newCanvas = $("<canvas>")
-			.attr("width", imgData.width)
-			.attr("height", imgData.height)[0]
-		// for (i=0; i<imgData.data.length; i++) {
-		// 	if (i%4 == 0 && imgData.data[i] == 0) {
-		// 		imgData.data[i] = 
-		// 	}
-		// }
-
-		newCanvas.getContext('2d').putImageData(imgData,0,0)
-		destCtx.scale(downscaleDim / imgData.width, downscaleDim / imgData.width)
-		// destCtx.scale(downscaleDim / imgData.height)
-		destCtx.drawImage(newCanvas,0,0)
-		// console.log(imgData);
-		// document.getElementById('imageWrapper').innerHTML = "";
-		// document.getElementById('imageWrapper').appendChild(image);
-		clearCanvas_simple(); 
-		scaledImgData = destCtx.getImageData(0,0,downscaleDim, downscaleDim).data
-		nnData = [] //28*28 sized array
-		// console.log(scaledImgData.length)
-		for (i=0; i<28*28; i++) {
-			nnData.push(scaledImgData.slice(i*4,i*4+4))
-		}
-		console.log("nnData: "+JSON.stringify(nnData).slice(1,-1))
-
-		$.ajax({
-			"url":"/nn/forward",
-			"method":"post",
-			"data": {"img": nnData},
-			"success": function(res) {
-				$("#prediction").text(res.prediction)
-				$("#confidence").text(res.confidence*100+"%")
-			}
-		})
-	});
+	
 	
 	// Add touch event listeners to canvas element
 	canvas_simple.addEventListener("touchstart", function(e)

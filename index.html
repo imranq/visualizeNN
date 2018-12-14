@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>VisualizeNN</title>
+	<link rel="stylesheet" href="css/normalize.css">
+	<!-- <link rel="shortcut icon" href="img/logo.png"> -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/bootstrap-grid.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/foundation-icons.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/css/bootstrap-slider.css" />
+	<link rel="stylesheet" href="css/index.css">
+
+	<script src="js/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/bootstrap-slider.js"></script>
+	<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+	<script src="nn/NeuralNetwork.js"></script>
+	<script src="data/mnist.js"></script>
+	
+</head>
+
+<body>
+	<nav id="navbar" class="d-flex navbar-inverse navbar justify-content-between navigation">
+		<div id="logo">
+		VisualizeNN | Visualization of MNIST Trained Neural Network
+		</div>
+	</nav>
+	<div id="container">
+		<div id="info">A neural network uses linear algebra to create models from data that can predict new inputs. Backpropagation is how the weights update themselves to meet the needs of the . Includes parameters to adjust epochs, training proportions, number of layers</div>
+		<div id="parameterWrapper" class="">			
+				<!-- <label for="layers">Epochs:</label>
+				<input type="number" id="layerSelect" name="layers" min="1" max="5"> -->
+				<table id="parametersTable">
+					<tr>
+						<td>
+							<div id="test" style="">
+							</div>
+						</td>
+						<td>
+							Digits to train on: 
+							<input id="digits_slider" data-slider-id='digits_slider_id' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="0.5" data-slider-value="14"/><br/>
+							<span id="trainDataset">Train on 140 entries</span>
+							Epochs: 
+							<input id="epochs_slider" data-slider-id='epochs_slider1' type="text" data-slider-min="0" data-slider-max="10" data-slider-step="1" data-slider-value="2"/><br/>
+							<span id="trainDataset">Repeat Training Cycle 2 times</span>
+						</td>
+						<td>
+							<label for="numLayers">Number of Layers:</label>
+							<input type="number" id="numLayers" name="layers" value="1" min="1" max="3">
+							<br/>
+							(number of nodes is 100)
+							<!-- <label for="layers">Nodes per Layer:</label>
+							<input type="number" id="numNodes" name="layers" min="0" max="9"> -->
+						</td>
+						<td>
+							<button class="btn btn-primary" id="train_btn">Train!</button><br/>
+							<label style="font-size:10px">(Estimated <span id="trainingEstimate">--</span> ms)</label>
+						</td>
+					</tr>
+				</table>				
+		</div>
+		
+		<div id="networkWrapper" class="">
+			<div id="top" class="row">
+				<div id="mnist_image">
+				</div>
+				<div id="hidden_layers">
+				</div>
+				<div id="output_matrix">
+				</div>
+			</div>
+		</div>
+		<hr/>
+		
+		<div id="wrapper" class="">
+			
+			<div id="bpImageWrapper" class="">
+				<div id="bpInputs">
+					<label for="layers">Select Digit to Backquery:</label>
+					<input type="number" id="layerSelect" name="layers" min="0" max="9" value="0">
+					<br/>
+					<button id="btn_backquery" class="btn btn-info">Generate Backquery Image</button>
+				</div>
+				<div id="backpropImage">
+				</div>
+			</div>
+
+			<!-- <div id="networkStats" class="col-sm">	
+				Layers: 3
+				Nodes per Layer: 
+				<ul>
+					<li>Initial Layer: 784</li>
+					<li>Hidden Layer 1: 100</li>
+					<li>Hidden Layer 2: 100</li>
+					<li>Hidden Layer 2: 10</li>
+				</ul>
+			</div> -->
+			<div id="userInteractionWrapper" class="row">
+				<div id="draw" class="" style="margin-left:20px"></div>	
+				<div id="drawWrapper" class="col-sm">	
+					<button class="btn btn-info" style="vertical-align: middle" id="predictDigit">Predict Digit</button>
+				<br/>Prediction: <span id="prediction" class="drawstats">--</span>
+					<br/>Confidence: <span id="confidence" class="drawstats">--</span>
+				</div>
+
+				<div id="imageWrapper" class="col-sm">	
+					<!-- <canvas height="28" width="28" id="dest" style="width:100px;height:100px"></canvas> -->
+				</div>
+				<!-- 
+				<div id="result" class="col-sm">		
+				</div> -->
+			</div>
+		</div>
+		<div id="descriptionPopup">
+		</div>
+		<canvas id="probabilities" width="400" height="200"></canvas>
+		
+	</div> <!--container -->
+	<div id="footer_bar"></div>
+</body>
+<script>
+$(document).ready(function(){
+	//visualize nn in the browser
+	trainSet = 10000 //entries
+	nn = new NeuralNetwork(28*28, [100], 10, 0.2)
+	// $.getJSON('/data/mnist.js',function(data){
+ //        console.log(data[3])
+ //    });
+
+
+
+	function trainValue(val) {
+		$("#trainDataset").text("Train on "+Math.round(trainSet*val,0)+" digit entries");
+	}
+
+	$('#digits_slider').slider();
+	$('#epochs_slider').slider();
+
+
+	$("#ex1").on("slide", function(slideEvt) {
+		$("")
+	});
+
+
+	$("#train_btn").click(function(){
+		$("#train_btn").text("Training...")
+		$("#train_btn").removeClass("btn-primary")
+		$("#train_btn").addClass("btn-info")
+		
+		mnist.slice(0,10000).forEach(function(entry){
+			var output = []
+			for (i=0; i<10;i++) {
+				output.push(0.1)
+			}
+			output[entry.digit] = 0.99
+			
+			for (i=0; i<mnist.length; i++) {
+				if (entry.mnist[i] == 0) {
+					entry.mnist[i] = 0.1
+				} else if (entry.mnist[i] > 1) {
+					entry.mnist[i] = entry.mnist[i] / 255
+				}
+			}
+			// console.log(entry.mnist)
+			// console.log(output)
+			nn.train(entry.mnist, output);
+		})
+
+		$("#train_btn").removeClass("btn-primary")
+		$("#train_btn").addClass("btn-danger")
+		$("#train_btn").text("Reset")
+
+	})
+
+	$("#btn_backquery").click(function(){
+		// console.log(mnist[Math.random(10)].digit)
+		digit = $("#layerSelect").val()
+		var reverseOutput = []
+		for (i=0; i<10;i++) {
+			reverseOutput.push(0.1)
+		}
+		reverseOutput[digit] = 0.99
+		console.log(nn.backquery(reverseOutput))
+	})
+
+	$('#predictDigit').mousedown(function(e)
+	{
+		downscaleDim = 28
+		clickX_simple = new Array();
+		clickY_simple = new Array();
+		clickDrag_simple = new Array();
+		var image = new Image();
+		image.id = "pic"
+		image.src = document.getElementById('canvasSimple').toDataURL();
+		canvas = document.getElementById('canvasSimple');
+		ctx = canvas.getContext('2d');
+		imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+		canvas_zoomed = document.createElement('canvas');
+		canvas_zoomed.setAttribute('width', downscaleDim);
+		canvas_zoomed.setAttribute('height', downscaleDim);
+		canvas_zoomed.setAttribute('id', 'dest');
+		$('#imageWrapper').html(canvas_zoomed);
+		destCtx = $("#dest")[0].getContext('2d')
+		newCanvas = $("<canvas>")
+			.attr("width", imgData.width)
+			.attr("height", imgData.height)[0]
+		newCanvas.getContext('2d').putImageData(imgData,0,0)
+		destCtx.scale(downscaleDim / imgData.width, downscaleDim / imgData.width)
+		destCtx.drawImage(newCanvas,0,0)
+		clearCanvas_simple(); 
+		scaledImgData = destCtx.getImageData(0,0,downscaleDim, downscaleDim).data
+		nnData = [] //28*28 sized array
+		for (i=0; i<28*28; i++) {
+			if (scaledImgData[i*4+3] == 0) {
+				nnData.push(0.1)
+			} else {
+				nnData.push(scaledImgData[i*4+3]/255)
+			}			
+		}
+		var outputs = nn.query(nnData)
+		console.log(outputs)
+		digit = -1
+		confidence = 0
+		for (i=0; i<outputs.length; i++) {
+			if (outputs[i] > confidence) {
+				digit = i
+				confidence = outputs[i]
+			}
+		}
+
+		$("#prediction").text(digit)
+		$("#confidence").text(Math.round(confidence*100,2)+"%")
+
+
+	});
+
+	function displayImage(data, id) {
+		canvas_zoomed = document.createElement('canvas');
+		canvas_zoomed.setAttribute('width', 28);
+		canvas_zoomed.setAttribute('height', 28);
+		canvas_zoomed.setAttribute('id', 'dest2');
+		$(canvas_zoomed).css("background","#eee");
+		$(canvas_zoomed).css("width","100px");
+		$(canvas_zoomed).css("height","100px");
+
+		newImageData = new ImageData(28, 28);
+		newImageData.data = new Uint8ClampedArray(3136);
+		// newImageData.height = 28
+		// newImageData.width = 28
+		for (i=0; i<data.raw.length; i++) {
+			newImageData.data[i*4] = data[i]*255;
+			newImageData.data[i*4+1] = data[i]*255;
+			newImageData.data[i*4+2] = data[i]*255;
+			newImageData.data[i*4+3] = 255;
+		}
+		console.log(newImageData);
+
+		$('#test').append(canvas_zoomed);
+		$("#dest2")[0].getContext('2d').putImageData(newImageData,0,0)
+		// newCanvas = $("<canvas>").attr("width", 100).attr("height", 100)[0]
+		// newCanvas.getContext('2d').putImageData(newImageData,0,0)
+	}
+})
+</script>
+<script>
+var ctx = document.getElementById("probabilities").getContext('2d');
+// var myChart = new Chart(ctx, {
+//     type: 'bar',
+//     data: {
+//         labels: [0,0,0,0,0,0,0,0,0,0,0,0,0],
+//         datasets: [{
+//             label: 'Probability of Answer',
+//             data: Array(len).fill(0)
+//         }]
+//     },
+//     options: {
+//         scales: {
+//             yAxes: [{
+//                 ticks: {
+//                     beginAtZero:true
+//                 }
+//             }]
+//         }
+//     }
+// });
+</script>
+
+<script src="js/drawCanvas.js"></script>
+
+<script>
+    page_height = $(window).height() / 5
+    $("#footer_bar").css("margin-top", page_height+"px")
+
+</script>
+</html>
