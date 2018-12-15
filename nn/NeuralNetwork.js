@@ -108,6 +108,10 @@ class NeuralNetwork {
     return Math.log(t/(1-t));
   }
 
+  logitNdArray(ar) {
+    ar.divide(ar)
+  }
+
   backquery(targets) {
     var final_outputs = nj.array(targets);
 
