@@ -153,7 +153,7 @@ def loadJSTraining():
 		result.append(entry)
 		pass
 
-	with open('mnist.js', 'w') as outfile:
+	with open('mnist.json', 'w') as outfile:
 		json.dump(result, outfile, sort_keys=True, indent=4)
 
 loadJSTraining()

@@ -13,6 +13,9 @@
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/css/bootstrap-slider.css" />
 	<link rel="stylesheet" href="css/index.css">
+	<link rel="icon" href="favicon.png" type="image/x-icon" />
+
+
 
 	<script src="js/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/bootstrap-slider.js"></script>
@@ -41,7 +44,7 @@
 				<div id="parametersTable" class="" style="width:480px">
 					<div class="row" id="parameters">
 						<div class="col-3">Training Set: </div>
-						<input id="digits_slider" data-slider-id='digits_slider_id' type="text" data-slider-min="100" data-slider-max="5000" data-slider-step="50" data-slider-value="1000" class="col-4"/>
+						<input id="digits_slider" data-slider-id='digits_slider_id' type="text" data-slider-min="100" data-slider-max="5000" data-slider-step="200" data-slider-value="1000" class="col-4"/>
 						<div class="col-4" id="digits_label">1000 Data Points</div>
 						<div class="w-100"></div>
 						<div class="col-3">Epochs: </div>
@@ -153,7 +156,7 @@ $(document).ready(function(){
 		$("#train_btn").removeClass("btn-primary")
 		$("#train_btn").addClass("btn-info")
 		$.ajax({
-			"url":"data/mnist.js", 
+			"url":"data/mnist.json", 
 			"method": "get",
 			"dataType": "json",
 			"success": function( data ) {
