@@ -8,10 +8,27 @@ body {
 }
 
 #navbar {
-	background: black;
+	background: darkslategray;
     color: white;
+    padding: 10px 40px;
+
+    /* border-bottom: #ccc solid 1px; */
     /* margin-bottom: 20px; */
 }
+
+#navbar a {
+	/* float: right; */
+	font-weight: bold;
+	color: white;
+	display: inline;
+}
+
+#logo {
+	font-weight: bold;
+	color: white !important;
+	/* float: left; */
+}
+
 
 #predictionWrapper {
 	font-weight: bold;
@@ -20,7 +37,7 @@ body {
 #info {
 	/* text-align: center; */
 	padding: 20px;
-	background: darkslategray;
+	background: slategray;
 	color: white;
 	margin-bottom: 15px;
 }
@@ -43,6 +60,26 @@ body {
 
 }
 
+#nn_start {
+	margin: 0 auto;
+	text-align: center;
+}
+
+#nn_start button {
+	width: 200px;
+}
+
+#nn_progress {
+	width: 200px;
+	
+	margin: 10px auto;
+}
+
+#nn_stats {
+	font-size: 10px;
+	font-style: italic;
+
+}
 
 #drawWrapper {
 	margin-right: 20px;
@@ -79,6 +116,21 @@ body {
 	text-align: center;
 	display: block;
 	margin-bottom: 20px;
+
+}
+
+#imageWrapper {
+	border: #ccc solid 3px;
+	height: 106px;
+	width: 106px;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 10px;
+	font-style: italic;
+}
+
+#imageWrapper p {
+	margin-top: 30px;
 }
 
 #bpInputs {
@@ -128,13 +180,20 @@ body {
 }
 
 #backquery {
-	width: 70%;
-	margin: 0 auto;
+	/* width: 70%; */
+	/* margin: 0 auto; */
 }
 
 #backquery label {
 	padding: 10px;
 	font-size: 20px;
+}
+
+.tip {
+	    font-size: 11px;
+    /* margin-left: 10px; */
+    font-style: italic;
+    margin-top: 10px;
 }
 
 #footer_bar {
