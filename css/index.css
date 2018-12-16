@@ -19,18 +19,39 @@ body {
 	padding-bottom: 10px;
 	background: darkslategray;
 	color: white;
+	margin-bottom: 15px;
 }
 
 #parameterWrapper {
 	/* text-align: center; */
 	padding-top: 10px;
 	padding-bottom: 10px;
+	/* width: 480px; */
+	margin-right: 10px;
 }
 
 #parametersTable {
 	margin: 0 auto;
     width: 1000px;
 }
+
+#parameters {
+	/* width: 50%; */
+
+}
+
+
+#drawWrapper {
+	margin-right: 20px;
+}
+
+#draw {
+	margin-left: 20px;
+    margin-right: 20px;
+    width: 106px;
+    height: 106px;
+}
+
 
 #networkWrapper {
 
@@ -101,4 +122,14 @@ body {
 	padding-right: 20px;
 	margin: 0 auto;
 
+}
+
+#backquery {
+	width: 70%;
+	margin: 0 auto;
+}
+
+#backquery label {
+	padding: 10px;
+	font-size: 20px;
 }

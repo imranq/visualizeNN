@@ -3,12 +3,12 @@
 <head>
 	<meta charset="UTF-8">
 	<title>VisualizeNN</title>
-	<link rel="stylesheet" href="css/normalize.css">
+	<!-- <link rel="stylesheet" href="css/normalize.css"> -->
 	<!-- <link rel="shortcut icon" href="img/logo.png"> -->
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/bootstrap-grid.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link rel="stylesheet" href="css/foundation-icons.css">
+	<!-- <link rel="stylesheet" href="css/foundation-icons.css"> -->
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/css/bootstrap-slider.css" />
@@ -16,9 +16,10 @@
 
 	<script src="js/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/bootstrap-slider.js"></script>
-	<script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+	<!-- <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script> -->
+	<script src="js/num.min.js"></script>
 	<script src="nn/NeuralNetwork.js"></script>
-	<script src="data/mnist.js"></script>
+	<!-- <script src="data/mnist.js"></script> -->
 	
 </head>
 
@@ -27,47 +28,55 @@
 		<div id="logo">
 		VisualizeNN | Visualization of MNIST Trained Neural Network
 		</div>
+		<!-- <div id="github" style="display: inline; float:right">
+			See this on github <a href="www.github.com/imranq/visualizeNN">here</a>
+		</div> -->
 	</nav>
 	<div id="container">
 		<div id="info">A neural network uses linear algebra to create models from data that can predict new inputs. Backpropagation is how the weights update themselves to meet the needs of the . Includes parameters to adjust epochs, training proportions, number of layers</div>
-		<div id="parameterWrapper" class="">			
+		
+		<div id="parameterWrapper" class="row">			
 				<!-- <label for="layers">Epochs:</label>
 				<input type="number" id="layerSelect" name="layers" min="1" max="5"> -->
-				<table id="parametersTable">
-					<tr>
-						<td>
-							<div id="test" style="">
-							</div>
-						</td>
-						<td>
-							Digits to train on: 
-							<input id="digits_slider" data-slider-id='digits_slider_id' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="0.5" data-slider-value="14"/><br/>
-							<span id="trainDataset">Train on 140 entries</span>
-							Epochs: 
-							<input id="epochs_slider" data-slider-id='epochs_slider1' type="text" data-slider-min="0" data-slider-max="10" data-slider-step="1" data-slider-value="2"/><br/>
-							<span id="trainDataset">Repeat Training Cycle 2 times</span>
-						</td>
-						<td>
-							<label for="numLayers">Number of Layers:</label>
-							<input type="number" id="numLayers" name="layers" value="1" min="1" max="3">
-							<br/>
-							(number of nodes is 100)
-							<!-- <label for="layers">Nodes per Layer:</label>
-							<input type="number" id="numNodes" name="layers" min="0" max="9"> -->
-						</td>
-						<td>
-							<button class="btn btn-primary" id="train_btn">Train!</button><br/>
-							<label style="font-size:10px">(Estimated <span id="trainingEstimate">--</span> ms)</label>
-						</td>
-					</tr>
-				</table>				
+				<div id="parametersTable" class="" style="width:480px">
+					<div class="row" id="parameters">
+						<div class="col-3">Training Set: </div>
+						<input id="digits_slider" data-slider-id='digits_slider_id' type="text" data-slider-min="100" data-slider-max="10000" data-slider-step="50" data-slider-value="1000" class="col-4"/>
+						<div class="col-4" id="digits_label">1000 Data Points</div>
+						<div class="w-100"></div>
+						<div class="col-3">Epochs: </div>
+						<input id="epochs_slider" data-slider-id='epochs_slider1' type="text" data-slider-min="1" data-slider-max="10" data-slider-step="1" data-slider-value="2" class="col-6"/>
+						<div class="col-4" id="epochs_label">2 Epochs</div>
+						<div class="w-100"></div>
+						<div class="col-3">Nodes: </div>
+						<input id="nodes_slider" data-slider-id='nodes_slider1' type="text" data-slider-min="1" data-slider-max="200" data-slider-step="1" data-slider-value="100" class="col-6"/>
+						<div class="col-4" id="nodes_label">100 Nodes</div>															
+					</div>
+				</div>
+				<div id="userInteractionWrapper" class="row" style="width:600px">
+						<div id="draw" class="" style="margin-left:20px; width: 20%; display: inline"></div>	
+						<div id="drawWrapper" class="">	
+							<button class="btn btn-info" style="vertical-align: middle" id="predictDigit">Predict Digit</button>
+							<br/>Prediction: <span id="prediction" class="drawstats">--</span>
+							<br/>Confidence: <span id="confidence" class="drawstats">--</span>
+						</div>
+
+						<div id="imageWrapper" class="">	
+							<!-- <canvas height="28" width="28" id="dest" style="width:100px;height:100px"></canvas> -->
+						</div>
+				</div>
+					<div class="col-2">
+						<button class="btn btn-primary" id="train_btn">Train</button><br/>
+						<label style="font-size:10px">(Estimated <span id="trainingEstimate">--</span> ms)</label>
+					</div>
+				</div>
 		</div>
 		
 		<hr/>
 		
 		<div id="wrapper" class="">
 			
-			<div id="bpImageWrapper" class="">
+			<!-- <div id="bpImageWrapper" class="">
 				<div id="bpInputs">
 					<label for="layers">Select Digit to Backquery:</label>
 					<input type="number" id="layerSelect" name="layers" min="0" max="9" value="0">
@@ -76,24 +85,10 @@
 				</div>
 				<div id="backpropImage">
 				</div>
-			</div>
-			<div id="userInteractionWrapper" class="row">
-				<div id="draw" class="" style="margin-left:20px"></div>	
-				<div id="drawWrapper" class="col-sm">	
-					<button class="btn btn-info" style="vertical-align: middle" id="predictDigit">Predict Digit</button>
-				<br/>Prediction: <span id="prediction" class="drawstats">--</span>
-					<br/>Confidence: <span id="confidence" class="drawstats">--</span>
-				</div>
-
-				<div id="imageWrapper" class="col-sm">	
-					<!-- <canvas height="28" width="28" id="dest" style="width:100px;height:100px"></canvas> -->
-				</div>
-				<!-- 
-				<div id="result" class="col-sm">		
-				</div> -->
-			</div>
+			</div> -->
+			
 		</div>
-		<div id="networkWrapper" class="">
+		<div id="networkWrapper" class="" style="display:none">
 			<div id="top" class="row">
 				<div id="mnist_image">
 				</div>
@@ -103,7 +98,8 @@
 				</div>
 			</div>
 		</div>
-		
+		<div id="backquery" class="row">
+		</div>
 		
 	</div> <!--container -->
 	<div id="footer_bar"></div>
@@ -112,12 +108,7 @@
 $(document).ready(function(){
 	//visualize nn in the browser
 	trainSet = 10000 //entries
-	nn = new NeuralNetwork(28*28, [100], 10, 0.2)
-	// $.getJSON('/data/mnist.js',function(data){
- //        console.log(data[3])
- //    });
-
-
+	var nn = new NeuralNetwork(28*28, [100], 10, 0.2)
 
 	function trainValue(val) {
 		$("#trainDataset").text("Train on "+Math.round(trainSet*val,0)+" digit entries");
@@ -125,41 +116,81 @@ $(document).ready(function(){
 
 	$('#digits_slider').slider();
 	$('#epochs_slider').slider();
+	$('#nodes_slider').slider();
 
 
-	$("#ex1").on("slide", function(slideEvt) {
-		$("")
+	$("#digits_slider").on("slide", function(slideEvt) {
+		$("#digits_label").text(slideEvt.value+" Data Points")
+	});
+
+	$("#epochs_slider").on("slide", function(slideEvt) {
+		$("#epochs_label").text(slideEvt.value+" Epochs")
 	});
 
 
+	$("#nodes_slider").on("slide", function(slideEvt) {
+		$("#nodes_label").text(slideEvt.value+" Nodes")
+	});
+
+	//set up backquery items
+	for (i=0; i<10; i++) {
+		if (i==5) {
+			$("#backquery").append('<div class="w-100"></div>')
+		}
+
+		backquery_canvas = document.createElement('canvas');
+		backquery_canvas.setAttribute('height', 28);
+		backquery_canvas.setAttribute('id', 'dest_');
+		$(backquery_canvas).css("background","#eee");
+		$(backquery_canvas).css("width","100px");
+		$(backquery_canvas).css("height","100px");
+		$("#backquery").append('<div id="backquery_'+i+'" class="col"><label>'+i+"</label></div>");
+		$("#backquery_"+i).append(backquery_canvas);
+	}
+
 	$("#train_btn").click(function(){
-		$("#train_btn").text("Training...")
+		$("#train_btn").text("Loading Data....")
 		$("#train_btn").removeClass("btn-primary")
 		$("#train_btn").addClass("btn-info")
-		
-		mnist.slice(0,10000).forEach(function(entry){
-			var output = []
-			for (i=0; i<10;i++) {
-				output.push(0.1)
-			}
-			output[entry.digit] = 0.99
-			
-			for (i=0; i<mnist.length; i++) {
-				if (entry.mnist[i] == 0) {
-					entry.mnist[i] = 0.1
-				} else if (entry.mnist[i] > 1) {
-					entry.mnist[i] = entry.mnist[i] / 255
+		$.ajax({
+			"url":"data/mnist.js", 
+			"method": "get",
+			"dataType": "json",
+			"success": function( data ) {
+				// console.log(data)
+				epochs = $("#epochs_slider").val()
+				nodes = $("#nodes_slider").val()
+				trainingSet = $("#digits_slider").val()
+				console.log(trainingSet)
+				console.log(nodes)
+				console.log(epochs)
+				nn = new NeuralNetwork(28*28, [100], 10, 0.2)
+
+				$("#train_btn").text("Training...")
+				for (i=0; i<epochs; i++) {
+					data.slice(0,trainingSet).forEach(function(entry){
+						var output = []
+						for (i=0; i<10;i++) {
+							output.push(0.1)
+						}
+						output[entry.digit] = 0.99
+						
+						for (i=0; i<entry.mnist.length; i++) {
+							if (entry.mnist[i] == 0) {
+								entry.mnist[i] = 0.1
+							} else if (entry.mnist[i] > 1) {
+								entry.mnist[i] = entry.mnist[i] / 255
+							}
+						}
+						nn.train(entry.mnist, output);
+					})
 				}
+				
+				$("#train_btn").removeClass("btn-info")
+				$("#train_btn").addClass("btn-primary")
+				$("#train_btn").text("Train")
 			}
-			// console.log(entry.mnist)
-			// console.log(output)
-			nn.train(entry.mnist, output);
-		})
-
-		$("#train_btn").removeClass("btn-primary")
-		$("#train_btn").addClass("btn-danger")
-		$("#train_btn").text("Reset")
-
+		});
 	})
 
 	$("#btn_backquery").click(function(){
@@ -253,7 +284,7 @@ $(document).ready(function(){
 })
 </script>
 <script>
-var ctx = document.getElementById("probabilities").getContext('2d');
+// var ctx = document.getElementById("probabilities").getContext('2d');
 // var myChart = new Chart(ctx, {
 //     type: 'bar',
 //     data: {
