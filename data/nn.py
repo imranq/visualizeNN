@@ -144,7 +144,7 @@ def loadJSTraining():
 	training_data_file.close()
 	result = []
 
-	for record in training_data_list[1:10000]:
+	for record in training_data_list[1:5000]:
 		all_values = record.split(",")
 		# print(record)
 		entry = {	"digit": int(all_values[0]),

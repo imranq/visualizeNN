@@ -13,6 +13,10 @@ body {
     /* margin-bottom: 20px; */
 }
 
+#predictionWrapper {
+	font-weight: bold;
+}
+
 #info {
 	text-align: center;
 	padding-top: 10px;
