@@ -7,10 +7,16 @@ body {
 	margin: 0 auto;
 }
 
+#inner-container {
+
+}
+
 #navbar {
 	background: darkslategray;
     color: white;
     padding: 10px 40px;
+    /* display: inline; */
+    min-width: 1000px;
 
     /* border-bottom: #ccc solid 1px; */
     /* margin-bottom: 20px; */
@@ -20,12 +26,17 @@ body {
 	/* float: right; */
 	font-weight: bold;
 	color: white;
-	display: inline;
+	display: inline-block;
+	width: 10%;
+	float: right;
+	margin-top: 10px;
 }
 
 #logo {
 	font-weight: bold;
 	color: white !important;
+	width: 40%;
+	margin-top: 5px;
 	/* float: left; */
 }
 
@@ -57,6 +68,7 @@ body {
 
 #parameters {
 	/* width: 50%; */
+
 
 }
 
@@ -164,10 +176,11 @@ body {
 }
 
 #userInteractionWrapper {
-	margin-left: 20px;
-	float: left;
-	width: 550px;
-	border-left: solid 1px #ccc;
+	margin-right: 20px;
+	/* float: left; */
+	width: 500px;
+	margin-left: 50px;
+	border-right: solid 1px #ccc;
 }
 
 #descriptionPopup {
