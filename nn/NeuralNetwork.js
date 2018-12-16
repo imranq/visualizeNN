@@ -31,11 +31,9 @@ class NeuralNetwork {
     // console.log("WHO: "+this.who.shape+" Hidden Outputs: "+hidden_outputs.shape+" => Final Inputs: "+final_inputs.shape)
 
     var final_outputs = nj.sigmoid(final_inputs) //10x1
-    console.log("Actual: "+user_targets.indexOf(0.99)+", Predicted: "+JSON.stringify(final_outputs))
-    // console.log(JSON.stringify(targets)+" "+JSON.stringify(final_outputs))
+    console.log("Actual: "+user_targets.indexOf(0.99)+", Predicted: "+JSON.stringify(final_outputs.flatten()))
     var output_errors = targets.subtract(final_outputs) //10x1
     var hidden_errors = nj.dot(this.who.T, output_errors) //(100x10).(10x1) = (100x1)
-    // console.log("WHO_T: "+this.who.T.shape+" Output Errors: "+output_errors.shape+" => Hidden Errors: "+hidden_errors.shape)
 
     //backprop
     var p0b = nj.multiply(output_errors, final_outputs) // (10x1)*(10x1) = (10x1)
@@ -44,29 +42,10 @@ class NeuralNetwork {
     var p2 = nj.dot(p1,hidden_outputs.reshape(1,hidden_outputs.size)) // 10x1
     var learningRateMatrix = nj.ones(p2.shape).assign(this.lr) //this.lr
     this.who = this.who.add(nj.multiply(learningRateMatrix,p2)) //10x1 * 10x1 = 10x1
-    // console.log("Inputs: "+JSON.stringify(inputs))
-    // console.log("Targets: "+JSON.stringify(targets))
-    // console.log("Hidden Inputs: "+JSON.stringify(hidden_inputs))
-    // console.log("Final Outputs: "+JSON.stringify(final_outputs))
-    // console.log("Output Errors: "+JSON.stringify(output_errors))
-    // console.log("Hidden Errors: "+JSON.stringify(hidden_errors))
-    // console.log("P0a: "+JSON.stringify(p0a))
-    // console.log("Ones: "+JSON.stringify(nj.ones(final_outputs.shape)))
-    // console.log("Final Outputs: "+JSON.stringify(final_outputs))
-    // console.log("1-Final Outputs: "+JSON.stringify(p0b))
-    // console.log("P1: "+JSON.stringify(p1))
-    // console.log("p0a: "+p0a.shape+" p0b: "+p0b.shape+" => p1: "+p1.shape)
-    // console.log(JSON.stringify(p2))
-    // console.log("p1: "+p1.shape+" hidden_outputs: "+hidden_outputs.reshape(1,100).shape+" => p2: "+p2.shape)
-    // console.log(JSON.stringify(nj.multiply(learningRateMatrix, p2)))
     var p0 = nj.ones(hidden_outputs.shape) //
     var p1 = nj.multiply(hidden_errors, nj.multiply(hidden_outputs, p0.subtract(hidden_outputs)))
-    // console.log("hidden errors: "+hidden_errors.shape+" dot hidden_outputs: "+hidden_outputs.shape+" => P1: "+p1.shape)
-    // console.log(inputs.reshape(1, inputs.size))
     var p2 = nj.dot(p1.reshape(p1.size,1), inputs.reshape(1, inputs.size))
-    // console.log("p1: "+p1.shape+" dot inputs: "+inputs.shape+" => P2: "+p2.shape)
     var learningRateMatrix = nj.ones(p2.shape).assign(this.lr)
-    // console.log(JSON.stringify(learningRateMatrix))
     this.wih = this.wih.add(nj.multiply(learningRateMatrix, p2))    
 
     var result = []
@@ -109,34 +88,59 @@ class NeuralNetwork {
   }
 
   logitNdArray(ar) {
-    ar.divide(ar)
+    var p0 = nj.subtract(nj.ones(ar.shape), ar)
+    // console.log(p0.flatten())
+    var p1 = nj.divide(ar,p0)
+    // console.log(p1.flatten())
+    return nj.log(p1)
   }
 
   backquery(targets) {
     var final_outputs = nj.array(targets);
 
     // calculate the signal into the final output layer
-    var final_inputs = nj.logit(final_outputs);
-
-    // calculate the signal out of the hidden layer
-    var hidden_outputs = nj.dot(this.who.T, final_inputs);
+    var p0 = nj.subtract(nj.ones(final_outputs.shape), final_outputs)
+    var p1 = nj.divide(final_outputs,p0)
+    var final_inputs = nj.log(p1)
     
+    var hidden_outputs = nj.dot(this.who.T, final_inputs);
+
     // scale them back to 0.01 to .99
-    hidden_outputs -= nj.min(hidden_outputs);
-    hidden_outputs /= nj.max(hidden_outputs);
-    hidden_outputs *= 0.98;
-    hidden_outputs += 0.01;
+    hidden_outputs = hidden_outputs.subtract(nj.ones(hidden_outputs.shape).assign(hidden_outputs.min()));    
+    hidden_outputs = hidden_outputs.add(nj.ones(hidden_outputs.shape).assign(0.1));
+    hidden_outputs = hidden_outputs.divide(nj.ones(hidden_outputs.shape).assign(hidden_outputs.max()));
+    hidden_outputs = hidden_outputs.multiply(nj.ones(hidden_outputs.shape).assign(0.98));    
 
     // calculate the signal into the hidden layer
-    var hidden_inputs = nj.logit(hidden_outputs);
+    var p0 = nj.subtract(nj.ones(hidden_outputs.shape), hidden_outputs)
+    var p1 = nj.divide(hidden_outputs,p0)
+    
+    // console.log("Hidden outputs after division") 
+    // console.log(JSON.stringify(p1))
+    
+    var hidden_inputs = nj.log(p1)
+    
+    // console.log("Hidden Inputs: ")
+    // console.log(JSON.stringify(hidden_inputs))
     
     // calculate the signal out of the input layer
-    var inputs = nj.dot(this.wih.T, hidden_inputs)
-    inputs -= nj.min(inputs);
-    inputs /= nj.max(inputs);
-    inputs *= 0.98;
-    inputs += 0.01;
-    return inputs;
+    var inputs = nj.dot(this.wih.T, hidden_inputs.reshape(hidden_inputs.size,1))
+    
+    // console.log("Inputs ")
+    // console.log(JSON.stringify(inputs))
+    
+    // console.log(this.wih.T.shape+" "+hidden_inputs.shape)
+    inputs = inputs.subtract(nj.ones(inputs.shape).assign(inputs.min()));
+    inputs = inputs.add(nj.ones(inputs.shape).assign(0.1));
+    inputs = inputs.divide(nj.ones(inputs.shape).assign(inputs.max()));
+    inputs = inputs.multiply(nj.ones(inputs.shape).assign(0.98));
+    inputs = inputs.flatten();
+    
+    var result = []
+    for (i=0; i<inputs.size; i++) {
+        result.push(inputs.get(i,1));
+    }
+    return result;
   }
 }
 
