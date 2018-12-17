@@ -90,7 +90,11 @@ body {
 #nn_stats {
 	font-size: 10px;
 	font-style: italic;
+}
 
+#nnConfig {
+	font-size: 10px;
+	text-align: left;
 }
 
 #drawWrapper {
@@ -209,6 +213,11 @@ body {
     margin-top: 10px;
 }
 
+#backquery_info {
+	font-size: 20px;
+    margin-left: 25px;
+}
+
 #footer_bar {
 	background: darkslategray;
 	margin: 0 auto;
@@ -217,4 +226,9 @@ body {
 	color: white;
 	padding-left: 10px;
 	padding-top: 5px;
+	text-align: center;
+}
+
+#footer_bar a {
+	color: white;
 }

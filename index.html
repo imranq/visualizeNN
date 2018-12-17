@@ -7,7 +7,7 @@
 	<!-- <link rel="shortcut icon" href="img/logo.png"> -->
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/bootstrap-grid.css">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
 	<!-- <link rel="stylesheet" href="css/foundation-icons.css"> -->
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
@@ -18,8 +18,12 @@
 
 
 	<script src="js/jquery.min.js"></script>
+	<script src="js/popper.min.js"></script>
+	<script src="js/tether.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+
+
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/bootstrap-slider.js"></script>
-	<!-- <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script> -->
 	<script src="js/num.min.js"></script>
 	<script src="nn/NeuralNetwork.js"></script>
 	<!-- <script src="data/mnist.js"></script> -->
@@ -39,7 +43,7 @@
 	</nav>
 	<div id="inner-container">
 		<div id="info">
-			<p>A neural network uses nodes and edges to simulate how a "brain" learns. With linear algebra, it creates models from data. Using <a href="https://en.wikipedia.org/wiki/Backpropagation" style="color:white">Backpropagation</a>, we can use gradient descent to distribute the training errors across all the nodes and so the weights redistribute. Below you can train a 3-layer Neural Network to recognize digits. Select the size of your training set, the number of epochs, and the nodes in the hidden layer below! You can even input your own handwritten digit using the middle canvas and clicking "Predict Digit". Try it out!</p>
+			<p>A neural network uses nodes and edges to simulate how a biological brain "learns". Using gradient descent and linear algebra, we can create highly accurate real-world models with enough training data. The secret to neural networks is <a href="https://en.wikipedia.org/wiki/Backpropagation" style="color:white">backpropagation</a>, which is a mechanism to distribute the training errors across the nodes in the network. Below you can train a 3-layer Neural Network to recognize digits. Select the size of your training set, the number of cycles, and the nodes in the hidden layer. You can even input your own handwritten digit using the canvas and by clicking "Predict Digit". Try it out!</p>
 		</div>
 		
 		<div id="parameterWrapper" class="row">			
@@ -96,13 +100,13 @@
 			</div>
 		</div>
 		<div id="backqueryWrapper" style="width: 70%; margin: 0 auto">
-			<h3 >Backquery Outputs</h3><br/>
+			<h3 >Backquery Outputs <i class="fas fa-info-circle" title="Each Backquery takes the ideal input for the digit and shows the ideal input image (try 5000 training examples to start seeing digits)" id="backquery_info"></i></h3><br/>
 			<div id="backquery" class="row">
 		
 			</div>
 		</div>
 		</div>
-		<div id="footer_bar">Created by Imran Qureshi</div>
+		<div id="footer_bar">VisualizeNN is created and maintained by Imran Qureshi. Please email any feedback or questions here: <a href="emailto:visualizenn@imranq.com">visualizenn@imranq.com</a> </div>
 	</div> <!--container -->
 	
 </body>
@@ -150,6 +154,8 @@ $(document).ready(function(){
 		$("#backquery").append('<div id="backqueryWrapper_'+i+'" class="col"><label>'+i+"</label></div>");
 		$("#backqueryWrapper_"+i).append(backquery_canvas);
 	}
+
+	$('#backquery_info').tooltip()
 
 	$("#train_btn").click(function(){
 		$("#train_btn").text("Loading Data....")
@@ -210,11 +216,13 @@ $(document).ready(function(){
 							$("#train_btn").removeClass("btn-info")
 							$("#train_btn").addClass("btn-primary")
 							$("#train_btn").text("Train Neural Network")
+
+							$("#nnConfig").text("Network trained with "+trainingSet+" Data Points for "+epochs+" Cycles, with "+nodes+" hidden nodes")
 						}
 						count += 1
+
 					})
 				}
-				
 			}
 		});
 	})
@@ -280,6 +288,7 @@ $(document).ready(function(){
 
 		$("#prediction").text(digit)
 		$("#confidence").text(Math.round(confidence*100,2)+"%")
+		console.log(nn.trainingSet())
 
 
 	});
@@ -296,7 +305,7 @@ $(document).ready(function(){
 			newImageData.data[i*4+2] = data[i]*255;
 			newImageData.data[i*4+3] = 255;
 		}
-		console.log(newImageData.data);
+		// console.log(newImageData.data);
 		ctx.putImageData(newImageData,0,0)
 		// newCanvas = $("<canvas>").attr("width", 100).attr("height", 100)[0]
 		// newCanvas.getContext('2d').putImageData(newImageData,0,0)
