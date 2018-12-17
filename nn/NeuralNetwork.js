@@ -25,15 +25,15 @@ class NeuralNetwork {
   train(user_inputs, user_targets) {
     var inputs = nj.array(user_inputs).T
     var targets = nj.array(user_targets).T
-    // console.log("WIH: "+this.wih.shape+" Inputs: "+inputs.shape+" => Hidden Inputs: ")
     var hidden_inputs = nj.dot(this.wih, inputs) //connection to the hidden layer (100x784)*(784x1) = (100x1)
-    // console.log("WIH: "+this.wih.shape+" Inputs: "+inputs.shape+" => Hidden Inputs: "+hidden_inputs.shape)
     var hidden_outputs = nj.sigmoid(hidden_inputs) //processed
     var final_inputs = nj.dot(this.who, hidden_outputs) //final output, should be 1x10 (10x100)*(100x1) = 10x1
-    // console.log("WHO: "+this.who.shape+" Hidden Outputs: "+hidden_outputs.shape+" => Final Inputs: "+final_inputs.shape)
 
     var final_outputs = nj.sigmoid(final_inputs) //10x1
-    console.log("Actual: "+user_targets.indexOf(0.99)+", Predicted: "+JSON.stringify(final_outputs.flatten()))
+    
+    var actual = user_targets.indexOf(0.99)
+    var predicted = final_outputs.flatten()
+
     var output_errors = targets.subtract(final_outputs) //10x1
     var hidden_errors = nj.dot(this.who.T, output_errors) //(100x10).(10x1) = (100x1)
 
@@ -44,7 +44,7 @@ class NeuralNetwork {
     var p2 = nj.dot(p1,hidden_outputs.reshape(1,hidden_outputs.size)) // 10x1
     var learningRateMatrix = nj.ones(p2.shape).assign(this.lr) //this.lr
     this.who = this.who.add(nj.multiply(learningRateMatrix,p2)) //10x1 * 10x1 = 10x1
-    var p0 = nj.ones(hidden_outputs.shape) //
+    var p0 = nj.ones(hidden_outputs.shape) 
     var p1 = nj.multiply(hidden_errors, nj.multiply(hidden_outputs, p0.subtract(hidden_outputs)))
     var p2 = nj.dot(p1.reshape(p1.size,1), inputs.reshape(1, inputs.size))
     var learningRateMatrix = nj.ones(p2.shape).assign(this.lr)
@@ -52,11 +52,12 @@ class NeuralNetwork {
 
     var result = []
     final_outputs = final_outputs.flatten()
-    for (i=0; i<final_outputs.size;i++) {
+    for (i=0; i < final_outputs.size; i++) {
       result.push(final_outputs.get(i,1))
     }
     this.training += 1
-    return result
+    // setTimeout(callback(actual), 1000)
+    return JSON.stringify(predicted)
     
   }
 
