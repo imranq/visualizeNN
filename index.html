@@ -7,11 +7,11 @@
 	<!-- <link rel="shortcut icon" href="img/logo.png"> -->
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/bootstrap-grid.css">
+	<link rel="stylesheet" href="css/bootstrap-slider.css">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
 	<!-- <link rel="stylesheet" href="css/foundation-icons.css"> -->
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/css/bootstrap-slider.css" />
 	<link rel="stylesheet" href="css/index.css">
 	<link rel="icon" href="favicon.png" type="image/x-icon" />
 
@@ -21,11 +21,10 @@
 	<script src="js/popper.min.js"></script>
 	<script src="js/tether.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
-
-
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.2/bootstrap-slider.js"></script>
+	<script src="js/bootstrap-slider.js"></script>
 	<script src="js/num.min.js"></script>
-	<script src="nn/NeuralNetwork.js"></script>
+	<script src="js/NeuralNetwork.js"></script>
+	<script src="js/chart.bundle.js"></script>
 	<!-- <script src="data/mnist.js"></script> -->
 	
 </head>
@@ -60,6 +59,9 @@
 					<div id="imageWrapper" class="">
 						<p>Processed Drawing Shown here</p>
 					</div>
+					<div id="" class="probabilityChart">
+						<canvas id="pchart" width="50" height="100"></canvas>
+					</div>
 			</div>
 			<div id="parametersTable" class="" style="width:480px">
 				<div class="row" id="parameters">
@@ -67,7 +69,7 @@
 					<input id="digits_slider" data-slider-id='digits_slider_id' type="text" data-slider-min="100" data-slider-max="10000" data-slider-step="200" data-slider-value="100" class="col-4"/>
 					<div class="col-4" id="digits_label">100 Data Points</div>
 					<div class="w-100"></div>
-					<div class="col-3">Epochs: </div>
+					<div class="col-3">Cycles: </div>
 					<input id="epochs_slider" data-slider-id='epochs_slider1' type="text" data-slider-min="1" data-slider-max="5" data-slider-step="1" data-slider-value="1" class="col-6"/>
 					<div class="col-4" id="epochs_label">1 Epoch</div>
 					<div class="w-100"></div>
@@ -99,6 +101,12 @@
 				</div>
 			</div>
 		</div>
+		<div id="mnistLoaderWrapper">
+			<div id="mnist_loader" class="row">
+
+			</div>
+		</div>
+
 		<div id="backqueryWrapper" style="width: 70%; margin: 0 auto">
 			<h3 >Backquery Outputs <i class="fas fa-info-circle" title="Each Backquery takes the ideal input for the digit and shows the ideal input image (try 5000 training examples to start seeing digits)" id="backquery_info"></i></h3><br/>
 			<div id="backquery" class="row">
@@ -111,10 +119,79 @@
 	
 </body>
 <script>
+var nn;
+
 $(document).ready(function(){
 	//visualize nn in the browser
 	trainSet = 10000 //entries
-	var nn = new NeuralNetwork(28*28, [100], 10, 0.2)
+	nn = new NeuralNetwork(28*28, [100], 10, 0.2)
+	// console.log("initial logs")
+	// console.log(nn.serialize())
+
+	var labels = []
+	var probData = []
+	for (i=0; i<10;i++) {
+		labels.push(i)
+		probData.push(0)
+	}
+
+	var chartData = {
+		labels: labels,
+		datasets: [{
+			label: 'digit probabilities',
+			borderWidth: 0,
+			data: probData
+		}]
+	};
+	var ctx = document.getElementById("pchart")
+	var chart1 = new Chart(ctx, {
+		type: 'horizontalBar',
+		data: {
+        labels: [2,3,1,0],
+        datasets: [{
+            label: "",
+            data: [99,33,21,10],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 0
+        }]
+	    },
+	    options: {
+	        scales: {
+	            yAxes: [{
+	                ticks: {
+	                    beginAtZero:true
+	                }
+	            }]
+	        },
+	        legend: {
+	        	display:false
+	        },
+	        xAxis: {
+	        	display:false
+	        },
+	        yAxis: {
+	        	display:false
+	        }
+	    }
+	});
+
+
+
 
 	function trainValue(val) {
 		$("#trainDataset").text("Train on "+Math.round(trainSet*val,0)+" digit entries");
@@ -157,152 +234,152 @@ $(document).ready(function(){
 
 	$('#backquery_info').tooltip()
 
-	function asyncLoop(entries, count){
-		var entry = entries[count]
-		entry = entry.split(",")
-		
-		//construct target
-		var output = []
-		for (i=0; i<10;i++) {
-			output.push(0.1)
-		}
-		output[entry[0]] = 0.99
-		
-		//construct mnist data
-		mnist = entry.slice(1,785);
-		for (i=0; i<mnist.length; i++) {	
-			if (mnist[i] == 0) {
-				mnist[i] = 0.1
-			} else if (mnist[i] > 1) {
-				mnist[i] = mnist[i] / 255
-			}
-		}
-
-		document.getElementById("nn_progress_bar").style.width = count/trainingSet*100+"%"
-		pred = nn.train(mnist, output)
-		console.log(pred)
-		count += 1;
-		if (count <= trainingSet) {
-			setTimeout(
-				asyncLoop(entries, count), 5000
-			)
-		} else {
-			for (var j = 0; j < 10; j++) {
-				target_output = []
-				for (var k = 0; k < 10; k++) {
-					target_output.push(0.1)
-				}
-				target_output[j] = 0.99
-				displayImage(nn.backquery(target_output), "backqueryCanvas_"+j)
-			}
-			$("#train_btn").removeClass("btn-info")
-			$("#train_btn").addClass("btn-primary")
-			$("#train_btn").text("Train Neural Network")
-			$("#nnConfig").text("Network trained with "+trainingSet+" Data Points for "+epochs+" Cycles, with "+nodes+" hidden nodes")
-
-		}
-	};
-
 
 	$("#train_btn").click(function(){
 		$("#train_btn").text("Loading Data....")
 		$("#train_btn").removeClass("btn-primary")
 		$("#train_btn").addClass("btn-info")
 		$(".progress-bar").css("width","0%")
+
 		$.ajax({
 			"url":"data/mnist_train_10000.csv", 
 			"method": "get",
 			"dataType": "text",
 			"success": function( data ) {
 				//Parse data
-				var record_num = 28*28+1;  // or however many elements there are in each row
 			    var entries = data.split(/\r\n|\n/);
 
 				epochs = parseInt($("#epochs_slider").val())
 				nodes = parseInt($("#nodes_slider").val())
 				trainingSet = parseInt($("#digits_slider").val())
-				// console.log(trainingSet)
-				// console.log(nodes)
-				// console.log(epochs)
-
-				nn = new NeuralNetwork(28*28, [nodes], 10, 0.1)
+				
+				// epochs = 1
+				// nodes = 150
+				// trainingSet = 50
+				nn = new NeuralNetwork(28*28, [nodes], 10, 0.2)
+				
 
 				$("#train_btn").text("Training...")
-
-
-				for (e=0; e < epochs; e++) {
-					var count = 1
-					// asyncLoop(entries, count)
-
-					for (ind = 1; ind <= trainingSet; ind++) {
-						var entry = entries[ind]
-						entry = entry.split(",")
-						
-						//construct target
-						var output = []
-						for (i=0; i<10;i++) {
-							output.push(0.1)
-						}
-						output[entry[0]] = 0.99
-						
-						//construct mnist data
-						mnist = entry.slice(1,785);
-						for (i=0; i<mnist.length; i++) {	
-							if (mnist[i] == 0) {
-								mnist[i] = 0.1
-							} else if (mnist[i] > 1) {
-								mnist[i] = mnist[i] / 255
+				$("#mnist_loader").html("")
+				worker = new Worker("js/trainWorker.js")
+				worker.addEventListener("message", function(e) {
+					// console.log(e.data)
+					if (e.data.status == "in-process") {
+						document.getElementById("nn_progress_bar").style.width = e.data.index/(trainingSet*epochs)*100+"%"
+						//load mnist image
+						maxImages = 10
+						loadInterval = trainingSet / maxImages / 4
+						if ((e.data.index-1) % loadInterval == 0) {
+							cid = 'mnist_'+e.data.index
+							canvas_mnist = document.createElement('canvas');
+							canvas_mnist.setAttribute('width', 28);
+							canvas_mnist.setAttribute('height', 28);
+							canvas_mnist.setAttribute('id', cid);
+							canvas_mnist.classList.add('mnist-canvas');
+							// ids.push(cid)
+							// canvas_mnist.classList.add('col-3');
+							document.getElementById("mnist_loader").appendChild(canvas_mnist)
+							// console.log(ids)
+							if ($("#mnist_loader").children().length >= maxImages) {
+								$("#mnist_loader").children()[0].remove()
 							}
+
+							// displayImage(entries[e.data.index].split(",").slice(1,785), cid)
+							// console.log(e.data.mnist)
+							displayImage(e.data.mnist, cid)
 						}
-						// console.log(entry+", "+mnist)
-						
-
-						//update DOM
-						// console.log("Timeout")
-						predValue = nn.train(mnist, output)
-						// document.getElementById("nn_progress_bar").style.width = ind/trainingSet*100+"%"
-
-						// setTimeout(function(){
-						// 	document.getElementById("nn_progress_bar").style.width = ind/trainingSet*100+"%"	
-						// },1500)
-						
-						//detect end of loop and update
-						if ((count == trainingSet - 3) && (e == epochs - 1)) {
-							//backquery each value
-							for (var j = 0; j < 10; j++) {
-								target_output = []
-								for (var k = 0; k < 10; k++) {
-									target_output.push(0.1)
-								}
-								target_output[j] = 0.99
-								displayImage(nn.backquery(target_output), "backqueryCanvas_"+j)
+					} else {
+						// console.log(e.data.network)
+						// console.log("after training")
+						nn.deserialize(e.data.network)
+						for (var j = 0; j < 10; j++) {
+							target_output = []
+							for (var k = 0; k < 10; k++) {
+								target_output.push(0.1)
 							}
-							$("#train_btn").removeClass("btn-info")
-							$("#train_btn").addClass("btn-primary")
-							// clearInterval(updateTrainingProgress)
-							$("#train_btn").text("Train Neural Network")
-							$("#nnConfig").text("Network trained with "+trainingSet+" Data Points for "+epochs+" Cycles, with "+nodes+" hidden nodes")
+							target_output[j] = 0.99
+							displayImage(nn.backquery(target_output), "backqueryCanvas_"+j)
 						}
-						count += 1
-					} //entries loop
-				} //epoch loop
-			} //end of function
-		}); //ajax
+						$("#train_btn").removeClass("btn-info")
+						$("#train_btn").addClass("btn-primary")
+						$("#train_btn").text("Train Neural Network")
+						$("#nnConfig").text("Network trained with "+trainingSet+" Data Points for "+epochs+" Cycles, with "+nodes+" hidden nodes")
+					}
+					
+				})
+				worker.postMessage({"trainingSet": trainingSet, "nodes": nodes, "epochs":epochs, "entries": entries})
+			}
+		})
+
+
+		// $.ajax({
+		// 	"url":"data/mnist_train_10000.csv", 
+		// 	"method": "get",
+		// 	"dataType": "text",
+		// 	"success": function( data ) {
+		// 		//Parse data
+		// 	    var entries = data.split(/\r\n|\n/);
+
+		// 		epochs = parseInt($("#epochs_slider").val())
+		// 		nodes = parseInt($("#nodes_slider").val())
+		// 		trainingSet = parseInt($("#digits_slider").val())
+				
+		// 		$("#train_btn").text("Training...")
+
+		// 		nn = new NeuralNetwork(28*28, [100], 10, 0.2)
+				
+				// for (ind = 1; ind <= trainingSet; ind++) {
+				// 	var entry = entries[ind]
+					// entry = entry.split(",")
+					
+					// //construct target
+					// var output = []
+					// for (i=0; i<10;i++) {
+					// 	output.push(0.1)
+					// }
+					// output[entry[0]] = 0.99
+					
+					// //construct mnist data
+					// mnist = entry.slice(1,785);
+					// for (i=0; i<mnist.length; i++) {	
+					// 	if (mnist[i] == 0) {
+					// 		mnist[i] = 0.1
+					// 	} else if (mnist[i] > 1) {
+					// 		mnist[i] = mnist[i] / 255
+					// 	}
+					// }
+					
+					// //update DOM
+					// predValue = nn.train(mnist, output)
+					
+
+
+					//detect end of loop and update
+				// 	if ((count == trainingSet - 3) && (e == epochs - 1)) {
+				// 		//backquery each value
+				// 		for (var j = 0; j < 10; j++) {
+				// 			target_output = []
+				// 			for (var k = 0; k < 10; k++) {
+				// 				target_output.push(0.1)
+				// 			}
+				// 			target_output[j] = 0.99
+				// 			displayImage(nn.backquery(target_output), "backqueryCanvas_"+j)
+				// 		}
+				// 		$("#train_btn").removeClass("btn-info")
+				// 		$("#train_btn").addClass("btn-primary")
+				// 		$("#train_btn").text("Train Neural Network")
+				// 		$("#nnConfig").text("Network trained with "+trainingSet+" Data Points for "+epochs+" Cycles, with "+nodes+" hidden nodes")
+				// 	}
+				// 	count += 1
+				// } //entries loop
+				
+		// 	} //end of function
+		// }); //ajax
 	}) //on click
 
 
 	$("#container").css("min-height", window.innerHeight-200);
 
-	$("#btn_backquery").click(function(){
-		// console.log(mnist[Math.random(10)].digit)
-		digit = $("#layerSelect").val()
-		var reverseOutput = []
-		for (i=0; i<10;i++) {
-			reverseOutput.push(0.1)
-		}
-		reverseOutput[digit] = 0.99
-		console.log(nn.backquery(reverseOutput))
-	})
 
 	$('#predictDigit').mousedown(function(e)
 	{
@@ -321,6 +398,7 @@ $(document).ready(function(){
 		canvas_zoomed.setAttribute('height', downscaleDim);
 		canvas_zoomed.setAttribute('id', 'dest');
 		$('#imageWrapper').html(canvas_zoomed);
+		// $('#imageWrapper2').html(canvas_zoomed);
 		destCtx = $("#dest")[0].getContext('2d')
 		newCanvas = $("<canvas>")
 			.attr("width", imgData.width)
@@ -331,15 +409,46 @@ $(document).ready(function(){
 		clearCanvas_simple(); 
 		scaledImgData = destCtx.getImageData(0,0,downscaleDim, downscaleDim).data
 		nnData = [] //28*28 sized array
+		console.log("Scaled image data")
+		console.log(scaledImgData)
 		for (i=0; i<28*28; i++) {
 			if (scaledImgData[i*4+3] == 0) {
 				nnData.push(0.1)
 			} else {
-				nnData.push(scaledImgData[i*4+3]/255)
+				nnData.push(0.99) //scaledImgData[i*4+3]/255)
 			}			
 		}
+		displayImage(nnData, "dest")
+		// console.log("after prediction")
+		// console.log(nn.serialize())
 		var outputs = nn.query(nnData)
+		// console.log(nn)
 		console.log(outputs)
+		//display probabilities
+
+		window.myHorizontalBar = new Chart(ctx, {
+				type: 'horizontalBar',
+				data: horizontalBarChartData,
+				options: {
+					// Elements options apply to all of the options unless overridden in a dataset
+					// In this case, we are setting the border of each horizontal bar to be 2px wide
+					elements: {
+						rectangle: {
+							borderWidth: 2,
+						}
+					},
+					responsive: true,
+					legend: {
+						position: 'right',
+					},
+					title: {
+						display: true,
+						text: 'Chart.js Horizontal Bar Chart'
+					}
+				}
+			});
+
+
 		digit = -1
 		confidence = 0
 		for (i=0; i<outputs.length; i++) {
@@ -362,16 +471,30 @@ $(document).ready(function(){
 		canvas = document.getElementById(id)
 		ctx = canvas.getContext("2d");
 		newImageData = ctx.createImageData(28,28);
+		console.log(data)
 		for (i=0; i<data.length; i++) {
-			newImageData.data[i*4] = data[i]*255;
-			newImageData.data[i*4+1] = data[i]*255;
-			newImageData.data[i*4+2] = data[i]*255;
-			newImageData.data[i*4+3] = 255;
+			newImageData.data[i*4] = 255-data[i]*255;
+			newImageData.data[i*4+1] = 255-data[i]*255;
+			newImageData.data[i*4+2] = 255-data[i]*255;
+			if (data[i] > 0) {
+				newImageData.data[i*4+3] = 255;	
+			} else {
+				newImageData.data[i*4+3] = 0;	
+			}
+
+			
 		}
 		// console.log(newImageData.data);
 		ctx.putImageData(newImageData,0,0)
 		// newCanvas = $("<canvas>").attr("width", 100).attr("height", 100)[0]
 		// newCanvas.getContext('2d').putImageData(newImageData,0,0)
+	}
+
+	function removeElement(elementId) {
+    	// Removes an element from the document
+
+	    var element = document.getElementById(elementId);
+	    element.parentNode.removeChild(element);
 	}
 })
 </script>

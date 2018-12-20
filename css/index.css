@@ -196,6 +196,33 @@ body {
 
 }
 
+#mnistLoaderWrapper {
+	border-top: solid 1px #ccc;
+	border-bottom: solid 1px #ccc;
+	display: block;
+	min-height: 150px;
+	padding: 10px 0px;
+	margin-bottom: 15px;
+}
+
+#mnist_loader {
+	height: 100px;
+	display: block;
+	
+	
+	width: 90%;
+	margin: 0 auto;
+}
+
+
+.mnist-canvas {
+	height: 100px;
+	width: 100px;
+	background: #ccc;
+	margin-right: 20px;
+}
+
+
 #backquery {
 	/* width: 70%; */
 	/* margin: 0 auto; */
@@ -214,7 +241,7 @@ body {
 }
 
 #backquery_info {
-	font-size: 20px;
+		font-size: 20px;
     margin-left: 25px;
 }
 

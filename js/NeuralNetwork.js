@@ -13,6 +13,7 @@ class NeuralNetwork {
     this.who = nj.random(this.onodes, this.hnodes) //10x100
     this.who = nj.subtract(this.who, nj.ones(this.who.shape).assign(0.5))
     this.training = 0
+    // this.key = user_key
     
     console.log("Initializing network with "+output_nodes+" Output Nodes, "+input_nodes+" Input Nodes") 
     console.log("Two matrices for hidden layer connections: "+this.wih.shape+" => "+this.who.shape) 
@@ -22,6 +23,26 @@ class NeuralNetwork {
     return this.training;
   }
 
+  serialize() {
+    var wih_json = {"data":this.wih.tolist(), "shape":this.wih.shape}
+    var who_json = {"data":this.who.tolist(), "shape":this.who.shape}
+    return {"wih": wih_json, "who": who_json}
+  }
+
+  key() {
+    return this.key
+  }
+
+  deserialize(w) {
+    //wih_json and who_json include the flattened array
+    // console.log(wih_json)
+    this.wih = nj.array(w.wih.data)//.reshape(w.wih.shape)
+    this.who = nj.array(w.who.data)//.reshape(w.who.shape)
+
+    // console.log(JSON.stringify(this.who))
+
+  }
+
   train(user_inputs, user_targets) {
     var inputs = nj.array(user_inputs).T
     var targets = nj.array(user_targets).T
@@ -29,10 +50,8 @@ class NeuralNetwork {
     var hidden_outputs = nj.sigmoid(hidden_inputs) //processed
     var final_inputs = nj.dot(this.who, hidden_outputs) //final output, should be 1x10 (10x100)*(100x1) = 10x1
 
-    var final_outputs = nj.sigmoid(final_inputs) //10x1
-    
-    var actual = user_targets.indexOf(0.99)
-    var predicted = final_outputs.flatten()
+    var final_outputs = nj.sigmoid(final_inputs) //10x1    
+    // console.log("Actual: "+actual+" Predicted: "+JSON.stringify(predicted))
 
     var output_errors = targets.subtract(final_outputs) //10x1
     var hidden_errors = nj.dot(this.who.T, output_errors) //(100x10).(10x1) = (100x1)
@@ -49,15 +68,9 @@ class NeuralNetwork {
     var p2 = nj.dot(p1.reshape(p1.size,1), inputs.reshape(1, inputs.size))
     var learningRateMatrix = nj.ones(p2.shape).assign(this.lr)
     this.wih = this.wih.add(nj.multiply(learningRateMatrix, p2))    
-
-    var result = []
-    final_outputs = final_outputs.flatten()
-    for (i=0; i < final_outputs.size; i++) {
-      result.push(final_outputs.get(i,1))
-    }
     this.training += 1
     // setTimeout(callback(actual), 1000)
-    return JSON.stringify(predicted)
+    return final_outputs.tolist()
     
   }
 
@@ -75,12 +88,7 @@ class NeuralNetwork {
     var final_outputs = nj.sigmoid(final_inputs).flatten()
 
     //convert NDArray to JS
-    var result = []
-    for (i=0; i<final_outputs.size;i++) {
-      result.push(final_outputs.get(i,1))
-    }
-
-
+    var result = final_outputs.tolist()
     return result
   }
 
@@ -129,10 +137,7 @@ class NeuralNetwork {
     inputs = inputs.multiply(nj.ones(inputs.shape).assign(0.98));
     inputs = inputs.flatten();
     
-    var result = []
-    for (i=0; i<inputs.size; i++) {
-        result.push(inputs.get(i,1));
-    }
+    var result = inputs.tolist()
     return result;
   }
 }
