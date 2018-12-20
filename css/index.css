@@ -35,9 +35,18 @@ body {
 #logo {
 	font-weight: bold;
 	color: white !important;
-	width: 40%;
-	margin-top: 5px;
+	width: 25px;
+	margin-right: 10px;
 	/* float: left; */
+}
+
+#drawhere {
+	width: 100px;
+    height: 50px;
+    position: absolute;
+    top: 227px;
+    left: 37px;
+    z-index: -999;
 }
 
 
@@ -45,12 +54,19 @@ body {
 	font-weight: bold;
 }
 
+#predictDigit {
+	width: 150px;
+	margin-top: 5px;
+	margin-right: 20px;
+	margin-left: 20px;
+}
+
 #info {
 	/* text-align: center; */
 	padding: 20px;
 	background: slategray;
 	color: white;
-	margin-bottom: 15px;
+	margin-bottom: 25px;
 }
 
 #parameterWrapper {
@@ -106,6 +122,7 @@ body {
     margin-right: 20px;
     width: 106px;
     height: 106px;
+    border: solid 3px #ccc;
 }
 
 
@@ -220,6 +237,12 @@ body {
 	width: 100px;
 	background: #ccc;
 	margin-right: 20px;
+}
+
+.mnist-probability {
+	/* display: block; */
+    margin-left: 10px;
+    border-left: 1px solid #eee;
 }
 
 

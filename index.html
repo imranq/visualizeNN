@@ -33,7 +33,7 @@
 	<div id="container">
 	<nav id="navbar" class="">
 		<div id="logo" class="navbar navbar-brand">
-		VisualizeNN | Visualization of MNIST Trained Neural Network
+		<img src="favicon.png" id="logo"/> VisualizeNN | Visualization of MNIST Trained Neural Network
 		</div>
 		<a class="nav navbar-nav navbar-right" href="https://github.com/imranq/visualizeNN" style="color:white; font-weight:bold; display:inline">
                  View on GitHub
@@ -48,20 +48,18 @@
 		<div id="parameterWrapper" class="row">			
 			<div id="userInteractionWrapper" class="row" style="width:600px">
 					<!-- <p style="display: inline">Draw a digit here:</p> -->
-					<div id="draw" class="" style="margin-left:20px; width: 20%; display: inline; margin-top: 0px; font-size: 12px"></div>	
-					<div id="drawWrapper" class="">	
-						<button class="btn btn-info" style="vertical-align: middle" id="predictDigit" >Predict Digit</button>
-						<br/>Prediction: <span id="prediction" class="drawstats">--</span>
-						<br/>Confidence: <span id="confidence" class="drawstats">--</span>
-						<div class="tip">Click and drag to draw a digit <br/>Tip: Try drawing a "2" or a "5"</div>
-					</div>
-
+					<img src="img/drawhere.png" id="drawhere" />
+					<div id="draw" class="" style="margin-left:20px; display: inline; margin-top: 0px; font-size: 12px"></div>	
 					<div id="imageWrapper" class="">
 						<p>Processed Drawing Shown here</p>
 					</div>
 					<div id="" class="probabilityChart">
-						<canvas id="pchart" width="50" height="100"></canvas>
+						<canvas id="pchart" width="150" height="100" class="mnist-probability"></canvas>
 					</div>
+					<div class="w-100"></div>
+					<button id="predictDigit" class="btn btn-primary">Predict Digit</button>
+					<div class="tip">Click and drag to draw a digit <br/>Tip: Try drawing a "2" or a "5"</div>
+					
 			</div>
 			<div id="parametersTable" class="" style="width:480px">
 				<div class="row" id="parameters">
@@ -144,54 +142,45 @@ $(document).ready(function(){
 		}]
 	};
 	var ctx = document.getElementById("pchart")
-	var chart1 = new Chart(ctx, {
+	probabilityChartSettings = {
 		type: 'horizontalBar',
 		data: {
-        labels: [2,3,1,0],
-        datasets: [{
-            label: "",
-            data: [99,33,21,10],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 0
-        }]
+	    labels: [2,3,1,0],
+	    datasets: [{
+	        label: "",
+	        data: [99,33,21,10],
+	        backgroundColor: "slategray",
+	        borderColor: [],
+	        borderWidth: 0
+	    }]
 	    },
 	    options: {
 	        scales: {
 	            yAxes: [{
-	                ticks: {
-	                    beginAtZero:true
-	                }
-	            }]
+	                gridLines: {
+		                display: false,
+		                drawBorder: false
+		            },
+		            position: "right",
+
+
+	            }],
+	            xAxes: [{
+		            gridLines: {
+		                display: false
+		            },
+		          	display: false
+
+		        }]
 	        },
 	        legend: {
 	        	display:false
 	        },
-	        xAxis: {
-	        	display:false
-	        },
-	        yAxis: {
-	        	display:false
-	        }
 	    }
-	});
+	}
 
-
-
+	var predictDigitChart = new Chart(ctx, probabilityChartSettings)
+	
 
 	function trainValue(val) {
 		$("#trainDataset").text("Train on "+Math.round(trainSet*val,0)+" digit entries");
@@ -422,31 +411,21 @@ $(document).ready(function(){
 		// console.log("after prediction")
 		// console.log(nn.serialize())
 		var outputs = nn.query(nnData)
-		// console.log(nn)
-		console.log(outputs)
-		//display probabilities
 
-		window.myHorizontalBar = new Chart(ctx, {
-				type: 'horizontalBar',
-				data: horizontalBarChartData,
-				options: {
-					// Elements options apply to all of the options unless overridden in a dataset
-					// In this case, we are setting the border of each horizontal bar to be 2px wide
-					elements: {
-						rectangle: {
-							borderWidth: 2,
-						}
-					},
-					responsive: true,
-					legend: {
-						position: 'right',
-					},
-					title: {
-						display: true,
-						text: 'Chart.js Horizontal Bar Chart'
-					}
-				}
-			});
+		newLabels = []
+		newData = outputs.concat().sort().reverse();
+		for(i=0; i<10; i++) {
+			newLabels.push(outputs.indexOf(newData[i]))
+		}
+
+
+		// console.log(nn)
+		// console.log(outputs)
+		predictDigitChart.data.labels = newLabels.slice(0,4)
+		predictDigitChart.data.datasets[0].data = newData.slice(0,4)
+		predictDigitChart.update()
+
+		//display probabilities
 
 
 		digit = -1
@@ -496,6 +475,8 @@ $(document).ready(function(){
 	    var element = document.getElementById(elementId);
 	    element.parentNode.removeChild(element);
 	}
+
+	$("#drawhere").css("top", $("#draw").top())
 })
 </script>
 <script>
