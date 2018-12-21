@@ -32,6 +32,13 @@ body {
 	margin-top: 10px;
 }
 
+#predictiontitle {
+	position: absolute;
+	color: #555;
+	font-size: 14px;
+	font-family: "Avenir";
+}
+
 #logo {
 	font-weight: bold;
 	color: white !important;
@@ -213,22 +220,40 @@ body {
 
 }
 
+.mnistWrapper {
+	display: inline;
+}
+
 #mnistLoaderWrapper {
 	border-top: solid 1px #ccc;
 	border-bottom: solid 1px #ccc;
 	display: block;
 	min-height: 150px;
 	padding: 10px 0px;
-	margin-bottom: 15px;
+	margin-bottom: 10px;
+	margin-top: 20px;
+	padding-bottom: 10px;
 }
 
 #mnist_loader {
 	height: 100px;
-	display: block;
-	
-	
+	/* display: table; */
 	width: 90%;
 	margin: 0 auto;
+}
+
+#predictDigitChart {
+	max-width: 150px;
+	max-height: 100px;
+	margin-left: 10px;
+	border-left: 1px solid #ccc;
+}
+
+.mnistChartWrapper {
+	max-width: 150px;
+	max-height: 100px;
+	margin-left: 10px;
+    margin-right: 30px;
 }
 
 
@@ -236,13 +261,14 @@ body {
 	height: 100px;
 	width: 100px;
 	background: #ccc;
-	margin-right: 20px;
+	/* margin-right: 20px; */
+	display: inline;
 }
 
 .mnist-probability {
 	/* display: block; */
-    margin-left: 10px;
-    border-left: 1px solid #eee;
+    display: inline;
+    border-left: 1px solid #ccc;
 }
 
 

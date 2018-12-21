@@ -9,7 +9,6 @@
 	<link rel="stylesheet" href="css/bootstrap-grid.css">
 	<link rel="stylesheet" href="css/bootstrap-slider.css">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
-	<!-- <link rel="stylesheet" href="css/foundation-icons.css"> -->
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 	<link rel="stylesheet" href="css/index.css">
@@ -53,7 +52,8 @@
 					<div id="imageWrapper" class="">
 						<p>Processed Drawing Shown here</p>
 					</div>
-					<div id="" class="probabilityChart">
+					<span id="predictiontitle">Digit Predictions</span>
+					<div id="predictDigitChart" class="probabilityChart">
 						<canvas id="pchart" width="150" height="100" class="mnist-probability"></canvas>
 					</div>
 					<div class="w-100"></div>
@@ -88,7 +88,7 @@
 				<label id="nnConfig">Currently untrained</label>
 			</div>
 		</div>
-		<hr/>
+		<!-- <hr/> -->
 		<div id="networkWrapper" class="" style="display:none">
 			<div id="top" class="row">
 				<div id="mnist_image">
@@ -99,13 +99,14 @@
 				</div>
 			</div>
 		</div>
-		<div id="mnistLoaderWrapper">
+		<div id="mnistLoaderWrapper" style="">
+			<h3 style="margin-left:30px" >Training Outputs <i class="fas fa-info-circle" title="These are sample queries performed by the network. Start training the network to see how the accuracy improves. Red bars = Incorrect Prediction. Gold bars = Correct Prediction" id="backquery_info"></i></h3><br/>
 			<div id="mnist_loader" class="row">
 
 			</div>
 		</div>
 
-		<div id="backqueryWrapper" style="width: 70%; margin: 0 auto">
+		<div id="backqueryWrapper" style="width: 95%; margin: 0 auto">
 			<h3 >Backquery Outputs <i class="fas fa-info-circle" title="Each Backquery takes the ideal input for the digit and shows the ideal input image (try 5000 training examples to start seeing digits)" id="backquery_info"></i></h3><br/>
 			<div id="backquery" class="row">
 		
@@ -145,10 +146,10 @@ $(document).ready(function(){
 	probabilityChartSettings = {
 		type: 'horizontalBar',
 		data: {
-	    labels: [2,3,1,0],
+	    labels: ["-","-","-","-"],
 	    datasets: [{
 	        label: "",
-	        data: [99,33,21,10],
+	        data: [0,0,0,0],
 	        backgroundColor: "slategray",
 	        borderColor: [],
 	        borderWidth: 0
@@ -179,8 +180,14 @@ $(document).ready(function(){
 	    }
 	}
 
-	var predictDigitChart = new Chart(ctx, probabilityChartSettings)
-	
+	var predictDigitChart = new Chart(ctx, JSON.parse(JSON.stringify(probabilityChartSettings)))
+	var mnistCharts = []
+	// for (i=0; i < maxImages; i++)
+	// var ctx = document.getElementById(ccid)
+	// newChart = new Chart(ctx, probabilityChartSettings);
+	// // mnistCharts.push(newChart)
+
+
 
 	function trainValue(val) {
 		$("#trainDataset").text("Train on "+Math.round(trainSet*val,0)+" digit entries");
@@ -221,9 +228,47 @@ $(document).ready(function(){
 		$("#backqueryWrapper_"+i).append(backquery_canvas);
 	}
 
+	//set-up MNIST canvases
+	var maxImages = 6
+	for (i=0; i<maxImages; i++) {
+		cid = 'mnist_canvas_'+i
+		canvas_mnist = document.createElement('canvas');
+		canvas_mnist.setAttribute('width', 28);
+		canvas_mnist.setAttribute('height', 28);
+		canvas_mnist.setAttribute('id', cid);
+		// canvas_mnist.style.display = "none"
+		canvas_mnist.classList.add('mnist-canvas');	
+		
+		canvasWrapper = document.createElement("div")
+		canvasWrapper.setAttribute("id", 'mnistChartWrapper'+i)
+		canvasWrapper.classList.add('mnistChartWrapper');	
+
+		ccid = 'mnist_chart_'+i
+		chart_mnist = document.createElement('canvas');
+		chart_mnist.setAttribute('width', 75);
+		chart_mnist.setAttribute('height', 100);
+		chart_mnist.setAttribute('id', ccid);
+		chart_mnist.classList.add('mnist-probability');	
+		canvasWrapper.appendChild(chart_mnist)
+		// console.log(canvasWrapper)
+		document.getElementById("mnist_loader").appendChild(canvas_mnist);
+		document.getElementById("mnist_loader").appendChild(canvasWrapper);
+		
+		var ctx2 = document.getElementById(ccid)
+		newChart = new Chart(ctx2, probabilityChartSettings);
+		mnistCharts.push(newChart)
+
+
+		
+	}
+	// console.log(mnistCharts)
+	// ids.push(cid)
+	// canvas_mnist.classList.add('col-3');
+	// $("#mnistLoaderWrapper").css("display","none")
+
 	$('#backquery_info').tooltip()
 
-
+	
 	$("#train_btn").click(function(){
 		$("#train_btn").text("Loading Data....")
 		$("#train_btn").removeClass("btn-primary")
@@ -237,46 +282,63 @@ $(document).ready(function(){
 			"success": function( data ) {
 				//Parse data
 			    var entries = data.split(/\r\n|\n/);
-
 				epochs = parseInt($("#epochs_slider").val())
 				nodes = parseInt($("#nodes_slider").val())
 				trainingSet = parseInt($("#digits_slider").val())
-				
-				// epochs = 1
-				// nodes = 150
-				// trainingSet = 50
-				nn = new NeuralNetwork(28*28, [nodes], 10, 0.2)
-				
-
+				var loadInterval = trainingSet / maxImages / 4
 				$("#train_btn").text("Training...")
-				$("#mnist_loader").html("")
+				// $("#mnistLoaderWrapper").slideDown().fadeIn()
+				// $("#mnist_loader").html("")
+				
+				// $("#mnistLoaderWrapper").css("display","block")
+
+				//set-up initial images 
+				for (var i=0; i<maxImages;i++) {
+					cid = "mnist_canvas_"+i
+					ccid = "mnist_chart_"+i
+					entry = entries[i+1].split(",")
+					mnistImg = entry.slice(1,785)
+					for (var ind=0; ind < mnistImg.length; ind++) {	
+						if (mnistImg[ind] == 0) {
+							mnistImg[ind] = 0.01;
+						} else if (mnistImg[ind] > 1) {
+							mnistImg[ind] /= 255;
+						}
+					}
+					// console.log(mnistImg)
+					displayImage(mnistImg, cid)			
+					predictions = nn.query(mnistImg)
+
+					updateMnistChart(i, predictions, entry[0])	
+				}
+
+				
+				var countImages = 0
 				worker = new Worker("js/trainWorker.js")
 				worker.addEventListener("message", function(e) {
 					// console.log(e.data)
 					if (e.data.status == "in-process") {
 						document.getElementById("nn_progress_bar").style.width = e.data.index/(trainingSet*epochs)*100+"%"
-						//load mnist image
-						maxImages = 10
-						loadInterval = trainingSet / maxImages / 4
-						if ((e.data.index-1) % loadInterval == 0) {
-							cid = 'mnist_'+e.data.index
-							canvas_mnist = document.createElement('canvas');
-							canvas_mnist.setAttribute('width', 28);
-							canvas_mnist.setAttribute('height', 28);
-							canvas_mnist.setAttribute('id', cid);
-							canvas_mnist.classList.add('mnist-canvas');
-							// ids.push(cid)
-							// canvas_mnist.classList.add('col-3');
-							document.getElementById("mnist_loader").appendChild(canvas_mnist)
-							// console.log(ids)
-							if ($("#mnist_loader").children().length >= maxImages) {
-								$("#mnist_loader").children()[0].remove()
+						
+						if (e.data.index % 10 == 0) {
+							randomElement = Math.round(Math.random()*maxImages,0)-1
+							if (randomElement < 0) {
+								randomElement = 0
 							}
-
-							// displayImage(entries[e.data.index].split(",").slice(1,785), cid)
-							// console.log(e.data.mnist)
-							displayImage(e.data.mnist, cid)
+							cid = "mnist_canvas_"+randomElement
+							displayImage(e.data.mnist, cid) 
+							updateMnistChart(randomElement,e.data.prediction, e.data.target)
 						}
+							// $("#"+cid).fadeOut("slow", function(){
+							// 	displayImage(e.data.mnist,$(this).attr("id"))
+							// 	$(this).fadeIn("slow", function(){
+							// 		updateMnistChart(i,e.data.prediction)
+							// 	});
+							// });
+						// }
+						//randomly fadeIn and fadeOut canvases and then update chart. Red for wrong, green for right
+						// displayImage(e.data.mnist, cid)
+						
 					} else {
 						// console.log(e.data.network)
 						// console.log("after training")
@@ -300,6 +362,26 @@ $(document).ready(function(){
 			}
 		})
 
+		function updateMnistChart(i, prediction, target) {
+			newLabels = []
+			// console.log(e.data)
+			newData = prediction.concat().sort().reverse();
+			for(var j=0; j<10; j++) {
+				newLabels.push(prediction.indexOf(newData[j]))
+			}
+			// console.log(mnistCharts)
+			mnistCharts[i].data.labels = newLabels.slice(0,4)
+			mnistCharts[i].data.datasets[0].data = newData.slice(0,4)
+
+			if (newLabels[0] == target) {
+				mnistCharts[i].data.datasets[0].backgroundColor = "gold"	
+			} else {
+				mnistCharts[i].data.datasets[0].backgroundColor = "red"
+			}
+			
+			mnistCharts[i].update()
+
+		}
 
 		// $.ajax({
 		// 	"url":"data/mnist_train_10000.csv", 
@@ -399,7 +481,7 @@ $(document).ready(function(){
 		scaledImgData = destCtx.getImageData(0,0,downscaleDim, downscaleDim).data
 		nnData = [] //28*28 sized array
 		console.log("Scaled image data")
-		console.log(scaledImgData)
+		// console.log(scaledImgData)
 		for (i=0; i<28*28; i++) {
 			if (scaledImgData[i*4+3] == 0) {
 				nnData.push(0.1)
@@ -439,7 +521,7 @@ $(document).ready(function(){
 
 		$("#prediction").text(digit)
 		$("#confidence").text(Math.round(confidence*100,2)+"%")
-		console.log(nn.trainingSet())
+		// console.log(nn.trainingSet())
 
 
 	});
@@ -450,7 +532,7 @@ $(document).ready(function(){
 		canvas = document.getElementById(id)
 		ctx = canvas.getContext("2d");
 		newImageData = ctx.createImageData(28,28);
-		console.log(data)
+		// console.log(data)
 		for (i=0; i<data.length; i++) {
 			newImageData.data[i*4] = 255-data[i]*255;
 			newImageData.data[i*4+1] = 255-data[i]*255;
@@ -476,7 +558,10 @@ $(document).ready(function(){
 	    element.parentNode.removeChild(element);
 	}
 
-	$("#drawhere").css("top", $("#draw").top())
+	// console.log($("#draw").position())
+	$("#drawhere").css("top", $("#draw").position().top)
+	$("#predictiontitle").css("top", $("#predictDigitChart").position().top)
+	$("#predictiontitle").css("left", $("#predictDigitChart").position().left+10)
 })
 </script>
 <script>
