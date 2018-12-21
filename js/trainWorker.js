@@ -31,7 +31,7 @@ self.addEventListener("message", function(e) {
 				}
 			}
 			predValue = nn.train(mnist, output);
-			self.postMessage({ "status": "in-process", "index": ind, "prediction": predValue, "target": entry[0], "mnist": mnist });
+			self.postMessage({ "status": "in-process", "index": ind, "prediction": predValue, "target": entry[0], "mnist": mnist_pretty });
 		}
 	}
 	

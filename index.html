@@ -100,14 +100,14 @@
 			</div>
 		</div>
 		<div id="mnistLoaderWrapper" style="">
-			<h3 style="margin-left:30px" >Training Outputs <i class="fas fa-info-circle" title="These are sample queries performed by the network. Start training the network to see how the accuracy improves. Red bars = Incorrect Prediction. Gold bars = Correct Prediction" id="backquery_info"></i></h3><br/>
-			<div id="mnist_loader" class="row">
+			<h3 style="margin-left:30px" >Training Outputs <i class="fas fa-info-circle"  class="tooltip_info" title="These are sample queries performed by the network. Start training the network to see how the accuracy improves. Red bars = Incorrect Prediction. Gold bars = Correct Prediction" id="forwardquery_info"></i></h3><br/>
+			<div id="mnist_loader"  class="row">
 
 			</div>
 		</div>
 
 		<div id="backqueryWrapper" style="width: 95%; margin: 0 auto">
-			<h3 >Backquery Outputs <i class="fas fa-info-circle" title="Each Backquery takes the ideal input for the digit and shows the ideal input image (try 5000 training examples to start seeing digits)" id="backquery_info"></i></h3><br/>
+			<h3 >Backquery Outputs <i class="fas fa-info-circle" title="Each Backquery takes the ideal input for the digit and shows the ideal input image (try 5000 training examples to start seeing digits)" id="backquery_info" class="tooltip_info"></i></h3><br/>
 			<div id="backquery" class="row">
 		
 			</div>
@@ -267,6 +267,7 @@ $(document).ready(function(){
 	// $("#mnistLoaderWrapper").css("display","none")
 
 	$('#backquery_info').tooltip()
+	$('#forwardquery_info').tooltip()
 
 	
 	$("#train_btn").click(function(){
