@@ -229,7 +229,8 @@ $(document).ready(function(){
 	}
 
 	//set-up MNIST canvases
-	var maxImages = 6
+	var maxImages = Math.round(document.getElementById("mnistLoaderWrapper").getBoundingClientRect().width / 300,0)
+
 	for (i=0; i<maxImages; i++) {
 		cid = 'mnist_canvas_'+i
 		canvas_mnist = document.createElement('canvas');
@@ -269,7 +270,31 @@ $(document).ready(function(){
 	$('#backquery_info').tooltip()
 	$('#forwardquery_info').tooltip()
 
-	
+	$.ajax({
+		"url":"data/mnist_train_10.csv", 
+		"method": "get",
+		"dataType": "text",
+		"success": function( data ) {
+			//Parse data
+		    var entries = data.split(/\r\n|\n/);
+			for (var i=0; i<maxImages;i++) {
+				cid = "mnist_canvas_"+i
+				ccid = "mnist_chart_"+i
+				entry = entries[i+1].split(",")
+				mnistImg = entry.slice(1,785)
+				for (var ind=0; ind < mnistImg.length; ind++) {	
+					if (mnistImg[ind] == 0) {
+						mnistImg[ind] = 0.01;
+					} else if (mnistImg[ind] > 1) {
+						mnistImg[ind] /= 255;
+					}
+				}
+				// console.log(mnistImg)
+				displayImage(mnistImg, cid)			
+			}
+		}
+	})
+
 	$("#train_btn").click(function(){
 		$("#train_btn").text("Loading Data....")
 		$("#train_btn").removeClass("btn-primary")
@@ -560,8 +585,8 @@ $(document).ready(function(){
 	}
 
 	// console.log($("#draw").position())
-	$("#drawhere").css("top", $("#draw").position().top)
-	$("#predictiontitle").css("top", $("#predictDigitChart").position().top)
+	$("#drawhere").css("top", $("#draw").position().top-20)
+	$("#predictiontitle").css("top", $("#predictDigitChart").position().top-20)
 	$("#predictiontitle").css("left", $("#predictDigitChart").position().left+10)
 })
 </script>
