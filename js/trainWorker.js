@@ -19,10 +19,10 @@ self.addEventListener("message", function(e) {
 			output[entry[0]] = 0.99;
 			
 			//construct mnist data
-			mnist = entry.slice(1,785);
-			mnist_pretty = mnist
+			var mnist = entry.slice(1,785);
+			var mnist_pretty = mnist.concat()
 			for (i=0; i<mnist.length; i++) {	
-				if (mnist[i] == 0) {
+				if (mnist[i] < 0.1) {
 					mnist[i] = 0.1;
 					mnist_pretty[i] = 0.01
 				} else {
@@ -31,7 +31,7 @@ self.addEventListener("message", function(e) {
 				}
 			}
 			predValue = nn.train(mnist, output);
-			self.postMessage({ "status": "in-process", "index": ind, "prediction": predValue, "target": entry[0], "mnist": mnist_pretty });
+			self.postMessage({ "status": "in-process", "index": ind, "prediction": predValue, "target": entry[0], "mnist": mnist });
 		}
 	}
 	
