@@ -107,7 +107,12 @@ class NeuralNetwork {
     return nj.log(p1)
   }
 
-  backquery(targets) {
+  backquery(t) {
+    var targets = []
+    for (i=0; i<10; i++) {
+        targets.push(0.1)
+    }
+    targets[t] = 0.99
     var final_outputs = nj.array(targets);
 
     // calculate the signal into the final output layer

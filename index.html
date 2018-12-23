@@ -146,7 +146,7 @@ $(document).ready(function(){
 	probabilityChartSettings = {
 		type: 'horizontalBar',
 		data: {
-	    labels: ["-","-","-","-"],
+	    labels: ["","","",""],
 	    datasets: [{
 	        label: "",
 	        data: [0,0,0,0],
@@ -230,9 +230,18 @@ $(document).ready(function(){
 
 	//set-up MNIST canvases
 	var maxImages = Math.round(document.getElementById("mnistLoaderWrapper").getBoundingClientRect().width / 300,0)
-
+	var maxImages = 10
 	for (i=0; i<maxImages; i++) {
-		cid = 'mnist_canvas_'+i
+		if (i==5) {
+			$("#mnist_loader").append('<div class="w-100"></div>');
+		}
+
+		wid = "mnistWrapper"+i
+		mnist_wrapper = document.createElement("div")
+		mnist_wrapper.classList.add("col")
+		mnist_wrapper.classList.add("mnistWrapper")
+
+		cid = 'mnist_canvas_'+i;
 		canvas_mnist = document.createElement('canvas');
 		canvas_mnist.setAttribute('width', 28);
 		canvas_mnist.setAttribute('height', 28);
@@ -244,23 +253,21 @@ $(document).ready(function(){
 		canvasWrapper.setAttribute("id", 'mnistChartWrapper'+i)
 		canvasWrapper.classList.add('mnistChartWrapper');	
 
-		ccid = 'mnist_chart_'+i
+		ccid = 'mnist_chart_'+i;
 		chart_mnist = document.createElement('canvas');
 		chart_mnist.setAttribute('width', 75);
 		chart_mnist.setAttribute('height', 100);
 		chart_mnist.setAttribute('id', ccid);
 		chart_mnist.classList.add('mnist-probability');	
-		canvasWrapper.appendChild(chart_mnist)
-		// console.log(canvasWrapper)
+		canvasWrapper.appendChild(chart_mnist);
+
 		document.getElementById("mnist_loader").appendChild(canvas_mnist);
 		document.getElementById("mnist_loader").appendChild(canvasWrapper);
-		
+
 		var ctx2 = document.getElementById(ccid)
 		newChart = new Chart(ctx2, probabilityChartSettings);
 		mnistCharts.push(newChart)
 
-
-		
 	}
 	// console.log(mnistCharts)
 	// ids.push(cid)
@@ -277,9 +284,10 @@ $(document).ready(function(){
 		"success": function( data ) {
 			//Parse data
 		    var entries = data.split(/\r\n|\n/);
-			for (var i=0; i<maxImages;i++) {
-				cid = "mnist_canvas_"+i
-				ccid = "mnist_chart_"+i
+			for (var i=0; i<20;i++) {
+				entry = entries[i+1].split(",")
+				cid = "mnist_canvas_"+entry[0]
+				ccid = "mnist_chart_"+entry[0]
 				entry = entries[i+1].split(",")
 				mnistImg = entry.slice(1,785)
 				for (var ind=0; ind < mnistImg.length; ind++) {	
@@ -336,6 +344,7 @@ $(document).ready(function(){
 					predictions = nn.query(mnistImg)
 
 					updateMnistChart(i, predictions, entry[0])	
+
 				}
 
 				
@@ -344,16 +353,20 @@ $(document).ready(function(){
 				worker.addEventListener("message", function(e) {
 					// console.log(e.data)
 					if (e.data.status == "in-process") {
-						document.getElementById("nn_progress_bar").style.width = e.data.index/(trainingSet*epochs)*100+"%"
+						document.getElementById("nn_progress_bar").style.width = e.data.index/(trainingSet*epochs)*100+"%";
 						
-						if (e.data.index % 10 == 0) {
-							randomElement = Math.round(Math.random()*maxImages,0)-1
+						if (e.data.index % 2 == 0) {
+							randomElement = e.data.target;
 							if (randomElement < 0) {
-								randomElement = 0
+								randomElement = 0;
 							}
-							cid = "mnist_canvas_"+randomElement
-							displayImage(e.data.mnist, cid) 
-							updateMnistChart(randomElement,e.data.prediction, e.data.target)
+							cid = "mnist_canvas_"+randomElement;
+							displayImage(e.data.mnist, cid);
+							updateMnistChart(randomElement,e.data.prediction, e.data.target);
+
+							for (var j = 0; j < 10; j++) {
+								displayImage(e.data.backquery[j], "backqueryCanvas_"+j)
+							}
 						}
 							// $("#"+cid).fadeOut("slow", function(){
 							// 	displayImage(e.data.mnist,$(this).attr("id"))
@@ -370,12 +383,7 @@ $(document).ready(function(){
 						// console.log("after training")
 						nn.deserialize(e.data.network)
 						for (var j = 0; j < 10; j++) {
-							target_output = []
-							for (var k = 0; k < 10; k++) {
-								target_output.push(0.1)
-							}
-							target_output[j] = 0.99
-							displayImage(nn.backquery(target_output), "backqueryCanvas_"+j)
+							displayImage(nn.backquery(j), "backqueryCanvas_"+j)
 						}
 						$("#train_btn").removeClass("btn-info")
 						$("#train_btn").addClass("btn-primary")

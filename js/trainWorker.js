@@ -5,7 +5,7 @@ self.addEventListener("message", function(e) {
 	// console.log(e.data)
 	entries = e.data["entries"]
 	cycles = e.data["epochs"]
-	nn = new NeuralNetwork(28*28, [e.data["nodes"]], 10, 0.2, "yeah")
+	nn = new NeuralNetwork(28*28, [e.data["nodes"]], 10, 0.2)
 	for (c = 0; c < cycles; c++) {
 		for (ind = 1; ind <= e.data["trainingSet"]; ind++) {
 			var entry = entries[ind];
@@ -31,7 +31,12 @@ self.addEventListener("message", function(e) {
 				}
 			}
 			predValue = nn.train(mnist, output);
-			self.postMessage({ "status": "in-process", "index": ind, "prediction": predValue, "target": entry[0], "mnist": mnist_pretty });
+
+			backQueryOutputs = []
+			for (bi=0; bi<10; bi++) {
+				backQueryOutputs.push(nn.backquery(bi))
+			}	
+			self.postMessage({ "status": "in-process", "index": ind, "prediction": predValue, "target": entry[0], "mnist": mnist_pretty, "backquery": backQueryOutputs });
 		}
 	}
 	

@@ -235,8 +235,13 @@ body {
 	padding-bottom: 10px;
 }
 
+.mnistWrapper {
+	max-width: 250px;
+	max-height: 100px;
+}
+
 #mnist_loader {
-	height: 100px;
+	height: 250px;
 	/* display: table; */
 	width: 90%;
 	margin: 0 auto;
@@ -253,7 +258,8 @@ body {
 	max-width: 150px;
 	max-height: 100px;
 	margin-left: 10px;
-    margin-right: 30px;
+    margin-right: 60px;
+    display: inline;
 }
 
 

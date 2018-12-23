@@ -8,3 +8,5 @@ A front-end neural network interface to teach students how changes in training s
 - Intuitive interfaces to adjust connectivity between layers (fully connected vs. partially connected)
 - Tilting data sets and generating new data
 - GANs and convolutional filters
+- GPU Acceleration
+- Updating backprop as it trains
