@@ -364,23 +364,13 @@ $(document).ready(function(){
 							displayImage(e.data.mnist, cid);
 							updateMnistChart(randomElement,e.data.prediction, e.data.target);
 
-							for (var j = 0; j < 10; j++) {
-								displayImage(e.data.backquery[j], "backqueryCanvas_"+j)
-							}
+							if(e.data.backquery.length > 1) {
+								for (var j = 0; j < 10; j++) {
+									displayImage(e.data.backquery[j], "backqueryCanvas_"+j)
+								}	
+							}							
 						}
-							// $("#"+cid).fadeOut("slow", function(){
-							// 	displayImage(e.data.mnist,$(this).attr("id"))
-							// 	$(this).fadeIn("slow", function(){
-							// 		updateMnistChart(i,e.data.prediction)
-							// 	});
-							// });
-						// }
-						//randomly fadeIn and fadeOut canvases and then update chart. Red for wrong, green for right
-						// displayImage(e.data.mnist, cid)
-						
 					} else {
-						// console.log(e.data.network)
-						// console.log("after training")
 						nn.deserialize(e.data.network)
 						for (var j = 0; j < 10; j++) {
 							displayImage(nn.backquery(j), "backqueryCanvas_"+j)
@@ -390,7 +380,6 @@ $(document).ready(function(){
 						$("#train_btn").text("Train Neural Network")
 						$("#nnConfig").text("Network trained with "+trainingSet+" Data Points for "+epochs+" Cycles, with "+nodes+" hidden nodes")
 					}
-					
 				})
 				worker.postMessage({"trainingSet": trainingSet, "nodes": nodes, "epochs":epochs, "entries": entries})
 			}
