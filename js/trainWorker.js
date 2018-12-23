@@ -31,9 +31,9 @@ self.addEventListener("message", function(e) {
 				}
 			}
 			predValue = nn.train(mnist, output);
-
+			backQueryOutputs = []
 			if (ind % 10 == 0) {
-				backQueryOutputs = []
+				
 				for (bi=0; bi<10; bi++) {
 					backQueryOutputs.push(nn.backquery(bi))
 				}	
@@ -45,5 +45,5 @@ self.addEventListener("message", function(e) {
 	
 	// console.log(JSON.stringify(nn.serialize()))
 	self.postMessage({"status":"complete", "network": nn.serialize()})
-	self.close()
+	self.close();
 })
